@@ -28,6 +28,7 @@ JavaScript [Spider Monkey Panel](https://theqwertiest.github.io/foo_spider_monke
 - Map:creation
 - Object iteration
 - Recursion
+- Split
 - Tags:retrieval:info
 - Tags:retrieval:tf
 
