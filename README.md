@@ -3,6 +3,7 @@
 [![CodeFactor][codefactor_badge]](https://www.codefactor.io/repository/github/regorxxx/Profiler-SMP/overview/main)
 [![CodacyBadge][codacy_badge]](https://www.codacy.com/gh/regorxxx/Profiler-SMP/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=regorxxx/Profiler-SMP&amp;utm_campaign=Badge_Grade)
 ![GitHub](https://img.shields.io/github/license/regorxxx/Profiler-SMP)
+
 JavaScript [Spider Monkey Panel](https://theqwertiest.github.io/foo_spider_monkey_panel) profiling tool and library of profiling modules and benchmarks for [foobar2000](https://www.foobar2000.org).  Profiler-SMP allows you to compare different techniques, operators and functions regarding execution speed and memory consumption. It reports results either in table text or JSON format.
 
 ## Features
