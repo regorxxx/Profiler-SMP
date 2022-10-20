@@ -2,6 +2,7 @@
 
 {
 	const re = /,/;
+	const reArr = /(,)|\|/;
 	
 	const splitString = {
 		name: 'splitString',
@@ -46,22 +47,43 @@
 	
 	const splitStringArray = {
 		name: 'splitStringArray',
-		description: 'String\'s split() method into SubArrays',
+		description: 'String\'s split() method into SubArrays with map()',
 		keywords: [
 			'string',
 			'method',
 			'array'
 		].sort(),
-		codeSample: 'd.split(\',\').map((arr) => {return arr.split(\'|\');})',
+		codeSample: 'd.split(\',\').map((s) => {return s.split(\'|\');})',
 		f: (d) => {
-			d.split(',').map((arr) => {return arr.split('|');});
+			d.split(',').map((s) => {return s.split('|');});
+		}
+	};
+	
+	const splitStringArrayReduce = {
+		name: 'splitStringArrayReduce',
+		description: 'String\'s split() method into SubArrays with reduce()',
+		keywords: [
+			'string',
+			'method',
+			'array'
+		].sort(),
+		codeSample: 'd.split(/(,)|\|/).reduce((arr, s) => {s !== \',\' && arr.push(s)})',
+		f: (d) => {
+			let len = 0;
+			return d.split(reArr).reduce((arr, s) => {
+				if (',' === s) {len = arr.push([]) - 1;}
+				else if (s !== void(0) && s !== "") {arr[len].push(s);}
+				return arr;
+			}, [[]]);
 		}
 	};
 	
 	const functions = [
 		splitString,
 		splitStringRegExp,
-		splitStringRegExpCached
+		splitStringRegExpCached,
+		splitStringArray,
+		splitStringArrayReduce
 	];
 
 	module.exports = {

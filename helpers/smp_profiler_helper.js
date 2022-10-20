@@ -1,15 +1,46 @@
 ﻿'use strict';
-//19/10/22
+//20/10/22
 const module = {exports: {}};
 include('smp_profiler_data.js');
 include('..\\helpers-external\\easy-table-1.2.0\\table.js'); const Table = module.exports;
 
+const popup = {ok : 0, yes_no : 4, yes : 6, no : 7, stop : 16, question : 32, info : 64};
+const skipProfiles = [	// Skip these methods (too slow), don't bring new info...
+		'concatForUnshift', 
+		'concatReduceRight', 
+		'concatApplyUnshift', 
+		'concatReduce',
+		'copyAppendLiteral',
+		'copyNewArray',
+		'getFileInfoHandle'
+].filter(Boolean);
+
+// File helpers
 function getFiles(folderPath, extensionSet) {
+	if (!utils.IsDirectory(folderPath)) {return [];}
 	return utils.Glob(folderPath + '*.*').filter((item) => {
 		return extensionSet.has('.' + item.split('.').pop().toLowerCase());
 	});
 }
 
+function setProfilesPath(def = fb.ProfilePath + 'scripts\\SMP\\xxx-scripts\\helpers\\profiler\\') {
+	try {
+		const input = utils.InputBox(window.ID, 'Edit profiles path:\n(Don\'t try to load other JS files!)', 'SMP Profiler', settings.path || def, true);
+		if (!utils.IsDirectory(input)) {
+			fb.ShowPopupMessage('Folder not found:\n' + input, 'Folder error');
+			return null;
+		}
+		return input;
+	} catch (e) {
+		if (e.message.indexOf('Dialog window was closed') === -1) {
+			fb.ShowPopupMessage(e, 'JSON error');
+		}
+		return null;
+	}
+	return null;
+}
+
+// Profiler
 const profiler = async (options) => {
 	const profile = async (fn, data) => {
 		let time = 0, heap = 0;
@@ -190,9 +221,8 @@ const smpProfiler = {
 		}
 		// Check for dangerous options
 		if (options.magnitude > 5000 && p.some((profile) => {return profile.name === 'recursion';})) {
-			const popup = {ok : 0, yes_no : 4, yes : 6, no : 7, stop : 16, question : 32, info : 64}; 
 			const WshShellUI = new ActiveXObject('WScript.Shell');
-			const answer = WshShellUI.Popup('Warning: \'recursion\' profile requires a lot of memory.\nMagnitude settings greater than 5000 may produce crashes.\nDo you want to continue?', 0, window.Name, popup.question + popup.yes_no);
+			const answer = WshShellUI.Popup('Warning: \'recursion\' profile requires a lot of memory.\nMagnitude settings greater than 5000 may produce crashes.\nDo you want to continue?', 0, window.ScriptInfo.Name, popup.question + popup.yes_no);
 			if (answer === popup.no) {
 				return new Promise((resolve) => { // Output empty test
 					return this.tests[this.tests.push({results: [], options}) - 1];
@@ -225,7 +255,7 @@ const smpProfiler = {
 					t.cell('Method Name', val.func.name);
 					t.cell('Avg (ms)', val.time.average, Table.number(2));
 					t.cell('Max (ms)', val.time.maximum, Table.number(2));
-					if (bMemory) {t.cell('Memory (MB)', val.memory.maximum / 1000, Table.number(0));}
+					if (bMemory) {t.cell('Memory (MB)', val.memory.maximum / 1000, Table.number(2));}
 					t.newRow();
 				});
 				const summaryData = [
