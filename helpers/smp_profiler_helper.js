@@ -25,7 +25,7 @@ function getFiles(folderPath, extensionSet) {
 
 function setProfilesPath(def = fb.ProfilePath + 'scripts\\SMP\\xxx-scripts\\helpers\\profiler\\') {
 	try {
-		const input = utils.InputBox(window.ID, 'Edit profiles path:\n(Don\'t try to load other JS files!)', 'SMP Profiler', settings.path || def, true);
+		const input = utils.InputBox(window.ID, 'Edit profiles path:\n(Don\'t try to load other JS files!)\n\nNot changing the path will reload the profiles from folder.', 'SMP Profiler', settings.path || def, true);
 		if (!utils.IsDirectory(input)) {
 			fb.ShowPopupMessage('Folder not found:\n' + input, 'Folder error');
 			return null;

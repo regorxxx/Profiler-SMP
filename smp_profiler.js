@@ -7,79 +7,11 @@ include(fb.ComponentPath + 'docs\\Flags.js');
 window.DefineScript('Profiler-SMP', {author: 'XXX', version: '1.0.0'});
 
 // Default settings
+const defaultOptions = [{ iterations: 100, magnitude: 10000, memory: false, profiles: [ 'array concatenation', 'array copying', 'loops' ], bRepaint: true, type: 'table' }, { iterations: 100, magnitude: 20000, memory: false, profiles: [ 'comparison operators', 'comparison statements', '(de-)composition', 'guards', 'map:access', 'map:creation', 'object iteration' ], bRepaint: true, type: 'table' }, { iterations: 100, magnitude: 200, memory: false, profiles: [ 'recursion' ], bRepaint: true, type: 'table' }, { iterations: 100, magnitude: 20000, memory: false, profiles: [ 'split' ], bRepaint: true, type: 'table' }, { iterations: 10, magnitude: 20000, memory: true, profiles: [ 'tags:retrieval:info' ], bRepaint: true, type: 'table' }, { iterations: 100, magnitude: 20000, memory: true, profiles: [ 'tags:retrieval:tf' ], bRepaint: true, type: 'table' }];
 const settings = {
 	path: window.GetProperty('Profiles path'),
 	font: gdi.Font('Segoe UI', 50),
-	options: [
-		{
-			iterations: 100,
-			magnitude: 10000,
-			memory: false,
-			profiles: [
-				'array concatenation',
-				'array copying',
-				'loops'
-			],
-			bRepaint: true,
-			type: 'table'
-		},
-		{
-			iterations: 100,
-			magnitude: 20000,
-			memory: false,
-			profiles: [
-				'comparison operators',
-				'comparison statements',
-				'(de-)composition',
-				'guards',
-				'map:access',
-				'map:creation',
-				'object iteration'
-			],
-			bRepaint: true,
-			type: 'table'
-		},
-		{
-			iterations: 100,
-			magnitude: 200,
-			memory: false,
-			profiles: [
-				'recursion'
-			],
-			bRepaint: true,
-			type: 'table'
-		},
-		{
-			iterations: 100,
-			magnitude: 20000,
-			memory: false,
-			profiles: [
-				'split'
-			],
-			bRepaint: true,
-			type: 'table'
-		},
-		{
-			iterations: 10,
-			magnitude: 20000,
-			memory: true,
-			profiles: [
-				'tags:retrieval:info'
-			],
-			bRepaint: true,
-			type: 'table'
-		},
-		{
-			iterations: 100,
-			magnitude: 20000,
-			memory: true,
-			profiles: [
-				'tags:retrieval:tf'
-			],
-			bRepaint: true,
-			type: 'table'
-		}
-	]
+	options: JSON.parse(JSON.stringify(defaultOptions))
 };
 
 settings.options = JSON.parse(window.GetProperty('Test options', JSON.stringify(settings.options)));
@@ -102,9 +34,11 @@ addEventListener('on_paint', (gr) => {
 	gr.FillSolidRect(0, 0, w, h, 0xFFF0F8FF) // AliceBlue
 	gr.FillSolidRect(w, 0, w * 2, h, 0xFFFFF8DC) // Cornsilk
 	gr.FillSolidRect(w, h/ 2, w * 2, h / 2, 0xFFDDA0DD) // Plum
+	gr.FillSolidRect(w * 3/2, h/ 2, w * 2, h / 2, 0xFFBC8F8F) // RosyBrown
 	gr.GdiDrawText(smpProfiler.progress !== null ? smpProfiler.progress + '%' : 'Run' + (!settings.path ? '\n(set profiles path first)' : ''), settings.font, 0xFF000000, 0, 0, w, h, center);
 	gr.GdiDrawText('Profiles path', settings.font, 0xFF000000, w, 0, w, h / 2, center);
-	gr.GdiDrawText('Test Settings', settings.font, 0xFF000000, w,  h / 2, w,  h / 2, center);
+	gr.GdiDrawText('Test Settings', settings.font, 0xFF000000, w,  h / 2, w/2,  h / 2, center);
+	gr.GdiDrawText('Reset Settings', settings.font, 0xFF000000, w * 3/2,  h / 2, w/2,  h / 2, center);
 });
 
 addEventListener('on_mouse_lbtn_up', (x, y, mask) => {
@@ -123,19 +57,28 @@ addEventListener('on_mouse_lbtn_up', (x, y, mask) => {
 		}
 	} else {
 		if (y >= h/2) {
-			let input = {};
-			try {
-				input = JSON.parse(utils.InputBox(window.ID, 'Edit options:\n(multiple tests may be added to the array)', 'SMP Profiler', JSON.stringify(settings.options), true));
-				for (let key in input) {settings.options[key] = input[key];}
-				window.SetProperty('Test options', JSON.stringify(settings.options));
-			} catch (e) {
-				if (e.message.indexOf('Dialog window was closed') === -1) {
-					fb.ShowPopupMessage(e, 'JSON error');
+			if (x >= w * 3/2) {
+				const WshShellUI = new ActiveXObject('WScript.Shell');
+				const answer = WshShellUI.Popup('Restore default tests?\n(Profiles path will not be changed)', 0, window.ScriptInfo.Name, popup.question + popup.yes_no);
+				if (answer === popup.yes) {
+					settings.options = JSON.parse(JSON.stringify(defaultOptions));
+					window.SetProperty('Test options', JSON.stringify(settings.options));
+				};
+			} else {
+				let input = {};
+				try {
+					input = JSON.parse(utils.InputBox(window.ID, 'Edit options:\n(multiple tests may be added to the array)', 'SMP Profiler', JSON.stringify(settings.options), true));
+					settings.options = input;
+					window.SetProperty('Test options', JSON.stringify(settings.options));
+				} catch (e) {
+					if (e.message.indexOf('Dialog window was closed') === -1) {
+						fb.ShowPopupMessage(e, 'JSON error');
+					}
 				}
 			}
 		} else {
 			const input = setProfilesPath();
-			if (input && input !== settings.path) {
+			if (input) {
 				smpProfiler.loadProfiles(input, smpProfiler.loadProfiles(settings.path, skipProfiles));
 				settings.path = input;
 				window.SetProperty('Profiles path', settings.path);
