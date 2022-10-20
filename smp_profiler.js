@@ -114,8 +114,9 @@ addEventListener('on_mouse_lbtn_up', (x, y, mask) => {
 		if (!settings.path || !utils.IsDirectory(settings.path)) { 
 			on_mouse_lbtn_up(w + 1, 0);
 		} else {
+			fb.ShowPopupMessage('Total tests: ' + settings.options.length + '\n\nProfiles: ' + settings.options.map((o) => o.profiles.join(', ')).join(', ') + '\n\nOptions:\n' + JSON.stringify(settings.options, null, '\t'), 'Tests list');
 			const WshShellUI = new ActiveXObject('WScript.Shell');
-			const answer = WshShellUI.Popup('Tests will be run during some minutes.\nWindow will appear to be blocked.\nDo you want to continue?', 0, window.ScriptInfo.Name, popup.question + popup.yes_no);
+			const answer = WshShellUI.Popup('Tests will be run during some minutes.\nWindow will appear to be blocked.\nCheck popup for full list, do you want to continue?', 0, window.ScriptInfo.Name, popup.question + popup.yes_no);
 			if (answer === popup.yes) {
 				settings.options.forEach((opt) => {smpProfiler.runAndReport(opt);});
 			};
