@@ -38,7 +38,7 @@ JavaScript [Spider Monkey Panel](https://theqwertiest.github.io/foo_spider_monke
 	- Comparison statements
 	- (De-)composition
 	- Guards
-- Foobar 2000 /SMP specifics:
+- Foobar 2000/SMP specifics:
 	- Tags:retrieval:info
 	- Tags:retrieval:tf
 
