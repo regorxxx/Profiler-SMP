@@ -1,5 +1,5 @@
 'use strict';
-
+//01/11/22
 {
 	const re = /,/;
 	const reArr = /(,)|\|/;
@@ -97,6 +97,10 @@
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
 			)].sort(),
 		functions,
-		testDataType: 'string'
+		testDataType: 'string',
+		defaultOptions: {
+			"iterations": 100,
+			"magnitude": 20000
+		}
 	};
 }

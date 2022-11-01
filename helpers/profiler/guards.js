@@ -1,5 +1,5 @@
 'use strict';
-
+//01/11/22
 {
 	const guardStrictTypeofNotUndefined = {
 		name: 'guardStrictTypeofNotUndefined',
@@ -436,6 +436,10 @@
 			functions.map((fn) => fn.keywords)
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
 			)].sort(),
-		functions
+		functions,
+		defaultOptions: {
+			"iterations": 100,
+			"magnitude": 20000
+		}
 	};
 }

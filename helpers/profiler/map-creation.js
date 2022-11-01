@@ -1,5 +1,5 @@
 'use strict';
-
+//01/11/22
 {
 	const setMap = {
 		name: 'setMap',
@@ -136,6 +136,10 @@
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
 			)].sort(),
 		functions,
-		testDataType: 'array'
+		testDataType: 'array',
+		defaultOptions: {
+			"iterations": 100,
+			"magnitude": 20000
+		}
 	};
 }

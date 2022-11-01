@@ -1,5 +1,5 @@
 'use strict';
-
+//01/11/22
 {
 	const copySlice = {
 		name: 'copySlice',
@@ -280,6 +280,10 @@
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
 		)].sort(),
 		functions,
-		testDataType:'arrays'
+		testDataType:'arrays',
+		defaultOptions: {
+			"iterations": 100,
+			"magnitude": 10000
+		}
 	};
 }

@@ -1,5 +1,5 @@
 'use strict';
-
+//01/11/22
 {
 	const compGreater = {
 		name: 'compGreater',
@@ -163,6 +163,10 @@
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
 			)].sort(),
 		functions,
-		testDataType: 'number'
+		testDataType: 'number',
+		defaultOptions: {
+			"iterations": 100,
+			"magnitude": 20000
+		}
 	};
 }

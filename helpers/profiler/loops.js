@@ -1,5 +1,5 @@
 'use strict';
-
+//01/11/22
 {
 	const loopForEach = {
 		name: 'loopForEach',
@@ -255,6 +255,10 @@
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
 			)].sort(),
 		functions,
-		testDataType: 'array'
+		testDataType: 'array',
+		defaultOptions: {
+			"iterations": 100,
+			"magnitude": 10000
+		}
 	};
 }

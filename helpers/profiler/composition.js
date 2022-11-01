@@ -1,6 +1,6 @@
 'use strict';
+//01/11/22
 /* eslint-disable no-unused-vars */
-
 {
 	const destructureObject = {
 		name: 'destructureObject',
@@ -227,7 +227,11 @@
 			functions.map((fn) => fn.keywords)
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
 			)].sort(),
-		functions
+		functions,
+		defaultOptions: {
+			"iterations": 100,
+			"magnitude": 20000
+		}
 	};
 }
 /* eslint-enable no-unused-vars */

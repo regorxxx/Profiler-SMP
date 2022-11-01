@@ -1,5 +1,5 @@
 'use strict';
-
+//01/11/22
 {
 	const tags = ['GENRE', 'STYLE'];
 	
@@ -20,14 +20,13 @@
 		f: (d) => {
 			const tagsLen = tags.length;
 			const handleLen = d.Count;
-			let outputListArray = [];
 			let tagString = '';
 			for (let i = 0; i < tagsLen; i++) {
 				const tagStr = tags[i].indexOf('$') === -1 ? '%' + tags[i] + '%' : tags[i];
 				tagString += (i === 0 ? '' : '| ') + '[' + tagStr + ']';
 			}
 			let tfo = fb.TitleFormat(tagString);
-			outputListArray = tfo.EvalWithMetadbs(d).map((arr) => {
+			return tfo.EvalWithMetadbs(d).map((arr) => {
 				return arr.split('| ').map((subArr) => {
 					return subArr.split(', ');
 				});
@@ -53,7 +52,6 @@
 		f: (d) => {
 			const tagsLen = tags.length;
 			const handleLen = d.Count;
-			let outputListArray = [];
 			let tagString = '';
 			const dic = {_:{}};
 			for (let i = 0; i < tagsLen; i++) {
@@ -62,7 +60,7 @@
 				dic[i] = {};
 			}
 			let tfo = fb.TitleFormat(tagString);
-			outputListArray = tfo.EvalWithMetadbs(d).map((arr) => {
+			return tfo.EvalWithMetadbs(d).map((arr) => {
 				return dic._[arr] ? dic._[arr].slice() : dic._[arr] = arr.split('| ').map((subArr, i) => {
 					return (dic[i][subArr] ? dic[i][subArr].slice() : dic[i][subArr] = subArr.split(', '));
 				});
@@ -86,6 +84,10 @@
 			functions.map((fn) => fn.keywords)
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
 			)].sort(),
-		functions
+		functions,
+		defaultOptions: {
+			"iterations": 100,
+			"magnitude": 20000
+		}
 	};
 }

@@ -1,5 +1,5 @@
 'use strict';
-
+//01/11/22
 {
 	const forIn = {
 		name: 'forIn',
@@ -216,6 +216,10 @@
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
 			)].sort(),
 		functions,
-		testDataType: 'object'
+		testDataType: 'object',
+		defaultOptions: {
+			"iterations": 100,
+			"magnitude": 20000
+		}
 	};
 }
