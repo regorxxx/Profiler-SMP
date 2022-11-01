@@ -6,22 +6,23 @@ include(fb.ComponentPath + 'docs\\Flags.js');
 
 window.DefineScript('Profiler-SMP', {author: 'XXX', version: '1.0.0'});
 
-// Default settings forr all tests and memory for Foobar2000 ones
-const defaultOptions = [
-		'array concatenation', 'array copying',
-		'loops', 'comparison operators',
-		'comparison statements', '(de-)composition',
-		'guards', 'map:access', 'map:creation',
-		'object iteration', 'recursion', 'split'
-	].map((profile) => {return {profiles: [profile], memory: false, type: 'table'};})
-	.concat([
-		{profiles: ['tags:retrieval:info'], memory: true, type: 'table'}, 
-		{profiles: ['tags:retrieval:tf'], memory: true, type: 'table'}
-	]);
+// Default settings for all tests and memory for Foobar2000 ones
 const settings = {
 	path: window.GetProperty('Profiles path'),
-	font: gdi.Font('Segoe UI', 50),
-	options: JSON.parse(JSON.stringify(defaultOptions))
+	font: gdi.Font('Segoe UI', 35),
+	options: JSON.parse(JSON.stringify(
+		[
+			'array concatenation', 'array copying',
+			'loops', 'comparison operators',
+			'comparison statements', '(de-)composition',
+			'guards', 'map:access', 'map:creation',
+			'object iteration', 'recursion', 'split'
+		].map((profile) => {return {profiles: [profile], memory: false, type: 'table'};})
+		.concat([
+			{profiles: ['tags:retrieval:info'], memory: true, type: 'table'}, 
+			{profiles: ['tags:retrieval:tf'], memory: true, type: 'table'}
+		])
+	))
 };
 
 settings.options = JSON.parse(window.GetProperty('Test options', JSON.stringify(settings.options)));
@@ -97,4 +98,40 @@ addEventListener('on_mouse_lbtn_up', (x, y, mask) => {
 			}
 		}
 	}
+});
+
+window.Tooltip.SetMaxWidth(500);
+addEventListener('on_mouse_move', (x, y) => {
+	const w = window.Width / 2;
+	const h = window.Height;
+	let text = ''
+	if (x <= w) {
+		text += smpProfiler.progress !== null 
+			? smpProfiler.progress + '%' 
+			: 'Run:' + (!settings.path ? '\n(set profiles path first)' : '');
+		text += '\n--------------------------------------------------------------------------------------------------' +
+				'\nTotal tests: ' + settings.options.length +
+				'\nProfiles: ' + settings.options.map((o) => o.profiles.join(', ')).join(', ');
+	} else {
+		if (y >= h/2) {
+			if (x >= w * 3/2) {text += 'Reset Settings';} 
+			else {text = 'Test Settings';}
+		} else {
+			text += 'Profiles path:';
+			text += '\n--------------------------------------------------------------------------------------------------' +
+				'\n' + settings.path;
+		}
+	}
+	if (text !== window.Tooltip.Text) {window.Tooltip.Text = text; window.Tooltip.Activate()}
+	window.Tooltip.TrackPosition(x, y);
+	window.Tooltip.TrackActivate = true
+});
+
+addEventListener('on_mouse_leave', (x, y) => {
+	window.Tooltip.Text = '';
+	window.Tooltip.Deactivate();
+});
+
+addEventListener('on_script_unload', () => {
+	window.Tooltip.Deactivate();
 });
