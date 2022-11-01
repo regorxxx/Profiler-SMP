@@ -1,13 +1,23 @@
 ﻿'use strict';
-//20/10/22
+//01/11/22
 include('helpers\\callbacks_xxx.js');
 include('helpers\\smp_profiler_helper.js');
 include(fb.ComponentPath + 'docs\\Flags.js');
 
 window.DefineScript('Profiler-SMP', {author: 'XXX', version: '1.0.0'});
 
-// Default settings
-const defaultOptions = [{ iterations: 100, magnitude: 10000, memory: false, profiles: [ 'array concatenation', 'array copying', 'loops' ], bRepaint: true, type: 'table' }, { iterations: 100, magnitude: 20000, memory: false, profiles: [ 'comparison operators', 'comparison statements', '(de-)composition', 'guards', 'map:access', 'map:creation', 'object iteration' ], bRepaint: true, type: 'table' }, { iterations: 100, magnitude: 200, memory: false, profiles: [ 'recursion' ], bRepaint: true, type: 'table' }, { iterations: 100, magnitude: 20000, memory: false, profiles: [ 'split' ], bRepaint: true, type: 'table' }, { iterations: 10, magnitude: 20000, memory: true, profiles: [ 'tags:retrieval:info' ], bRepaint: true, type: 'table' }, { iterations: 100, magnitude: 20000, memory: true, profiles: [ 'tags:retrieval:tf' ], bRepaint: true, type: 'table' }];
+// Default settings forr all tests and memory for Foobar2000 ones
+const defaultOptions = [
+		'array concatenation', 'array copying',
+		'loops', 'comparison operators',
+		'comparison statements', '(de-)composition',
+		'guards', 'map:access', 'map:creation',
+		'object iteration', 'recursion', 'split'
+	].map((profile) => {return {profiles: [profile], memory: false, type: 'table'};})
+	.concat([
+		{profiles: ['tags:retrieval:info'], memory: true, type: 'table'}, 
+		{profiles: ['tags:retrieval:tf'], memory: true, type: 'table'}
+	]);
 const settings = {
 	path: window.GetProperty('Profiles path'),
 	font: gdi.Font('Segoe UI', 50),
@@ -48,7 +58,8 @@ addEventListener('on_mouse_lbtn_up', (x, y, mask) => {
 		if (!settings.path || !utils.IsDirectory(settings.path)) { 
 			on_mouse_lbtn_up(w + 1, 0);
 		} else {
-			fb.ShowPopupMessage('Total tests: ' + settings.options.length + '\n\nProfiles: ' + settings.options.map((o) => o.profiles.join(', ')).join(', ') + '\n\nOptions:\n' + JSON.stringify(settings.options, null, '\t'), 'Tests list');
+			// Retrieve default settings to also inform the user about inherited ones
+			smpProfiler.reportSettings(settings.options);
 			const WshShellUI = new ActiveXObject('WScript.Shell');
 			const answer = WshShellUI.Popup('Tests will be run during some minutes.\nWindow will appear to be blocked.\nCheck popup for full list, do you want to continue?', 0, window.ScriptInfo.Name, popup.question + popup.yes_no);
 			if (answer === popup.yes) {

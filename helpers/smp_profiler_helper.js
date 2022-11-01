@@ -1,5 +1,5 @@
 ﻿'use strict';
-//20/10/22
+//01/11/22
 const module = {exports: {}};
 include('smp_profiler_data.js');
 include('..\\helpers-external\\easy-table-1.2.0\\table.js'); const Table = module.exports;
@@ -38,6 +38,21 @@ function setProfilesPath(def = fb.ProfilePath + 'scripts\\SMP\\xxx-scripts\\help
 		return null;
 	}
 	return null;
+}
+
+// Object helpers
+Set.prototype.difference = function(setB) {
+	let difference = new Set(this);
+	for (let elem of setB) {
+		difference.delete(elem);
+	}
+	return difference;
+};
+
+function compareKeys(a, b) {
+	const aKeys = Object.keys(a).sort();
+	const bKeys = Object.keys(b).sort();
+	return [...new Set(aKeys).difference(new Set(bKeys))];
 }
 
 // Profiler
@@ -203,16 +218,58 @@ const smpProfiler = {
 	getResultsNum: function getResultsNum() {
 		return this.tests.length;
 	},
+	getDefaultOptions: function getDefaultOptions(profileName) {
+		if (Array.isArray(profileName)) {return profileName.map((p) => this.getDefaultOptions(p));}
+		let defaultProfileOptions = {};
+		const currProfile = this.profiles.find((profile) => {return profile.name === profileName;});
+		if (currProfile.hasOwnProperty('defaultOptions')) {defaultProfileOptions = currProfile.defaultOptions || {};}
+		return defaultProfileOptions;
+	},
+	hasDefaultOptions: function hasDefaultOptions(profileName) {
+		if (Array.isArray(profileName)) {return profileName.map((p) => this.hasDefaultOptions(p));}
+		const currProfile = this.profiles.find((profile) => {return profile.name === profileName;});
+		return currProfile.hasOwnProperty('defaultOptions') && currProfile.defaultOptions;
+	},
+	// Merge single profile tests options with defaults if available. Adds an inherited flag in such case
+	mergeOptions: function mergeOptions(options) {
+		return options.map((oldOpt) => {
+			const hasDefault = oldOpt.profiles.length === 1 && this.hasDefaultOptions(oldOpt.profiles[0]);
+			let newOpt = hasDefault ? {...this.getDefaultOptions(oldOpt.profiles[0]), ...oldOpt} : oldOpt;
+			if (!newOpt.hasOwnProperty('memory')) {newOpt.memory = false;}
+			if (!newOpt.hasOwnProperty('bRepaint')) {newOpt.bRepaint = true;}
+			if (!newOpt.hasOwnProperty('type')) {newOpt.type = 'json';}
+			const different = compareKeys(newOpt, oldOpt);
+			if (newOpt !== oldOpt && different.length) {newOpt = {inherited: different.join(', '), ...newOpt};}
+			return newOpt;
+		});
+	},
+	reportSettings: function reportSettings(options, bPopup = true) {
+		const currSettings = this.mergeOptions(options.slice());
+		const currSettingsStr = JSON.stringify(currSettings, null, '\t').replace(/"inherited": (.*),/g, '// Inherited $1 from default settings');
+		const message = 'Total tests: ' + currSettings.length +
+						'\n\nProfiles: ' + currSettings.map((o) => o.profiles.join(', ')).join(', ') +
+						'\n\nOptions:\n' + currSettingsStr;
+		if (bPopup) {fb.ShowPopupMessage(message, 'Tests list');}
+		return message;
+	},
 	run: function run(opts) {
 		this.tests = [];
+		// Check if there is a recommended setup
+		let defaultProfileOptions = {};
+		if (opts.profiles && Array.isArray(opts.profiles) && opts.profiles.length === 1) {
+			defaultProfileOptions = this.getDefaultOptions(opts.profiles[0]) || {};
+		}
+		// Set options
 		const options = {
 			... {
 				iterations: 1000,
 				magnitude: 1000,
 				memory: false,
-				bRepaint: false,
-				profiles: []  // All
+				bRepaint: true,
+				profiles: [],  // All,
+				type: 'json'
 			},
+			...defaultProfileOptions,
 			...opts
 		};
 		let p = this.profiles.slice();
@@ -255,6 +312,7 @@ const smpProfiler = {
 					t.cell('Method Name', val.func.name);
 					t.cell('Avg (ms)', val.time.average, Table.number(2));
 					t.cell('Max (ms)', val.time.maximum, Table.number(2));
+					t.cell('Total (ms)', val.time.total, Table.number(2));
 					if (bMemory) {t.cell('Memory (MB)', val.memory.maximum / 1000, Table.number(2));}
 					t.newRow();
 				});
