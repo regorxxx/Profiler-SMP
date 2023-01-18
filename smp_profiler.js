@@ -1,7 +1,7 @@
 ﻿'use strict';
-//01/11/22
+//18/01/23
 include('helpers\\callbacks_xxx.js');
-include('helpers\\smp_profiler_helper.js');
+include('main\\profiler\\smp_profiler_helper.js');
 include(fb.ComponentPath + 'docs\\Flags.js');
 
 window.DefineScript('Profiler-SMP', {author: 'XXX', version: '1.0.0'});
@@ -52,6 +52,7 @@ addEventListener('on_paint', (gr) => {
 	gr.GdiDrawText('Reset Settings', settings.font, 0xFF000000, w * 3/2,  h / 2, w/2,  h / 2, center);
 });
 
+// Buttons
 addEventListener('on_mouse_lbtn_up', (x, y, mask) => {
 	const w = window.Width / 2;
 	const h = window.Height;
@@ -100,7 +101,11 @@ addEventListener('on_mouse_lbtn_up', (x, y, mask) => {
 	}
 });
 
+// Tooltip
 window.Tooltip.SetMaxWidth(500);
+window.Tooltip.time = Date.now();
+window.Tooltip.lastX = 0;
+window.Tooltip.lastY = 0;
 addEventListener('on_mouse_move', (x, y) => {
 	const w = window.Width / 2;
 	const h = window.Height;
@@ -122,9 +127,17 @@ addEventListener('on_mouse_move', (x, y) => {
 				'\n' + settings.path;
 		}
 	}
-	if (text !== window.Tooltip.Text) {window.Tooltip.Text = text; window.Tooltip.Activate()}
-	window.Tooltip.TrackPosition(x, y);
-	window.Tooltip.TrackActivate = true
+	if (text !== window.Tooltip.Text) {window.Tooltip.Text = text; window.Tooltip.Activate();}
+	setTimeout(() => { // Update tooltip without flickering
+		const time = Date.now() - window.Tooltip.time;
+		if (time > 250 && (Math.abs(window.Tooltip.lastX - x) >= 10 || Math.abs(window.Tooltip.lastY - y) >= 10)) {
+			window.Tooltip.time = Date.now();
+			window.Tooltip.TrackPosition(x, y);
+			window.Tooltip.lastX = x;
+			window.Tooltip.lastY = y;
+			window.Tooltip.TrackActivate = true
+		}
+	}, 100);
 });
 
 addEventListener('on_mouse_leave', (x, y) => {
