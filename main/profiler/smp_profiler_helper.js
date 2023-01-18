@@ -1,8 +1,8 @@
 ﻿'use strict';
-//01/11/22
+//18/01/23
 const module = {exports: {}};
 include('smp_profiler_data.js');
-include('..\\helpers-external\\easy-table-1.2.0\\table.js'); const Table = module.exports;
+include('..\\..\\helpers-external\\easy-table-1.2.0\\table.js'); const Table = module.exports;
 
 const popup = {ok : 0, yes_no : 4, yes : 6, no : 7, stop : 16, question : 32, info : 64};
 const skipProfiles = [	// Skip these methods (too slow), don't bring new info...
