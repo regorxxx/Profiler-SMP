@@ -1,10 +1,10 @@
 ﻿'use strict';
-//18/01/23
+//19/04/23
 include('helpers\\callbacks_xxx.js');
 include('main\\profiler\\smp_profiler_helper.js');
 include(fb.ComponentPath + 'docs\\Flags.js');
 
-window.DefineScript('Profiler-SMP', {author: 'XXX', version: '1.0.0'});
+if (!window.ScriptInfo.PackageId) {window.DefineScript('Profiler-SMP', {author: 'XXX', version: '1.0.0'});}
 
 // Default settings for all tests and memory for Foobar2000 ones
 const settings = {

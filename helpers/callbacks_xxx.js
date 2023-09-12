@@ -1,5 +1,5 @@
 'use strict';
-//12/10/22
+//11/03/23
 
 /*
 	Usage:
@@ -141,9 +141,10 @@ const removeEventListenerSelf = () => {return removeEventListener(this.eventList
 */
 const fireEvents = function(event) {
 	return function() {
-		let bReturn = event === 'on_mouse_rbtn_up' && callbacks[event].length; // To be used by on_mouse_rbtn_up to disable default menu
+		let bReturn = event === 'on_mouse_rbtn_up' && callbacks[event].listeners.length; // To be used by on_mouse_rbtn_up to disable default menu
 		callbacks[event].listeners.forEach((eventListener) => {
 			if (typeof this === 'undefined') {console.log(event); console.log(eventListener.listener.toString());}
+			if (!eventListener.listener) {console.log(event); console.log(JSON.stringify(eventListener));}
 			this.eventListener = {event, id: eventListener.id};
 			bReturn = eventListener.listener.apply(this, arguments);
 			this.eventListener = {event: null, id: null};
