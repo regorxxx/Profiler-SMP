@@ -1,10 +1,9 @@
 'use strict';
-//01/11/22
+//21/10/23
 {
 	const copySlice = {
 		name: 'copySlice',
 		description: 'Array\'s slice() method',
-		codeSample: 'a.slice()',
 		keywords: [
 			'array',
 			'clone',
@@ -12,6 +11,7 @@
 			'slice',
 			'method'
 		].sort(),
+		codeSample: 'a.slice()',
 		f: (d) => d[0].slice()
 	};
 
@@ -272,15 +272,15 @@
 	module.exports = {
 		name: 'array copying',
 		description: {
-		long: 'Array copying/cloning variations: creating a new array with the same elements as an existing array.',
-		short: 'Array copying/cloning variations.'
+			long: 'Array copying/cloning variations: creating a new array with the same elements as an existing array.',
+			short: 'Array copying/cloning variations.'
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
 		)].sort(),
 		functions,
-		testDataType:'arrays',
+		testDataType: 'arrays',
 		defaultOptions: {
 			"iterations": 100,
 			"magnitude": 10000
