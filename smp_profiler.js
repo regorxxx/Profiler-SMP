@@ -1,5 +1,5 @@
 ﻿'use strict';
-//19/04/23
+//26/10/23
 include('helpers\\callbacks_xxx.js');
 include('main\\profiler\\smp_profiler_helper.js');
 include(fb.ComponentPath + 'docs\\Flags.js');
@@ -13,7 +13,7 @@ const settings = {
 	options: JSON.parse(JSON.stringify(
 		[
 			'array concatenation', 'array copying',
-			'loops', 'comparison operators',
+			'array sorting', 'loops', 'comparison operators',
 			'comparison statements', '(de-)composition',
 			'guards', 'map:access', 'map:creation',
 			'object iteration', 'recursion', 'split'
