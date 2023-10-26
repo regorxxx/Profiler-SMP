@@ -1,5 +1,6 @@
 ﻿'use strict';
-//18/01/23
+//26/10/23
+
 const module = {exports: {}};
 include('smp_profiler_data.js');
 include('..\\..\\helpers-external\\easy-table-1.2.0\\table.js'); const Table = module.exports;
@@ -47,6 +48,15 @@ Set.prototype.difference = function(setB) {
 		difference.delete(elem);
 	}
 	return difference;
+};
+
+Array.prototype.shuffle = function() {
+	let last = this.length, n;
+	while (last > 0) {
+		n = Math.floor(Math.random() * last--);
+		[this[n], this[last]] = [this[last], this[n]];
+	}
+	return this;
 };
 
 function compareKeys(a, b) {
@@ -128,15 +138,11 @@ function ProfileRunner({profiles, iterations, magnitude, memory, parent = null, 
 	};
 	
 	this.runFunction = async (profile, func, data) => {
-		let d = data;
-		if (!d) {
-			if (func.testDataType) {
-				d = testdata(func.testDataType, this.magnitude);
-			} else {
-				d = testdata(profile.testDataType, this.magnitude);
-			}
-		}
-
+				const type = func.testDataType || profile.testDataType;
+		const d = profile.shuffleData 
+			? shuffleData(data || testdata(type, this.magnitude), type)
+			: data || testdata(type, this.magnitude);
+		
 		const result = {
 			time: {
 				average: 0.0,
@@ -156,10 +162,11 @@ function ProfileRunner({profiles, iterations, magnitude, memory, parent = null, 
 			};
 		}
 		
+		const bCopyData = profile.shuffleData;
 		for (let i = 0, duration, profile; i < this.iterations; i++) {
 			profile = await profiler({
 				fn: func.f,
-				data: d,
+				data: bCopyData ? copyData(d, type) : d,
 				memory: this.memory
 			});
 			duration = profile.time;

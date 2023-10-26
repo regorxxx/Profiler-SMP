@@ -1,5 +1,5 @@
 ﻿'use strict';
-//19/10/22
+//26/10/23
 
 const libItems = fb.GetLibraryItems();
 const libItemsArr = fb.GetLibraryItems().Convert();
@@ -88,5 +88,77 @@ const testdata = (type = 'array', len = 1000, min, max) => {
 			return handleListArray(len, true);
 		default:
 			return intArray(len);
+	}
+};
+
+const copyData = (data, type = 'array') => {
+	let temp;
+	switch(type) {
+		case 'object':
+			temp = objectMap(definedObject);
+			for (let key of data) {temp[key] = data[key];}
+			return temp;
+		case 'objectMap':
+			temp = objectMap(data.size);
+			for (let key of data) {temp[key] = data[key];}
+			return temp;
+		case 'map':
+			return new Map(data);
+		case 'number':
+			return data;
+		case 'string':
+			return data;
+		case 'arrays':
+			return data.map((arr) => [...arr]);
+		case 'handle':
+			return data;
+		case 'handleList':
+			return data.Clone();
+		case 'handleCached':
+			return data;
+		case 'handleListCached':
+			return data.Clone();
+		case 'handleListArray':
+			return [...data];
+		case 'handleListArrayCached':
+			return [...data];
+		default:
+			return [...data];
+	}
+};
+
+const shuffleData = (data, type = 'array') => {
+	let temp;
+	switch(type) {
+		case 'object':
+			temp = objectMap(definedObject);
+			Object.keys(data).shuffle().forEach((key) => {temp[key] = data[key];});
+			return temp;
+		case 'objectMap':
+			temp = objectMap(data.size);
+			Object.keys(data).shuffle().forEach((key) => {temp[key] = data[key];});
+			return temp;
+		case 'map':
+			return new Map(data.entries().shuffle());
+		case 'number':
+			return data;
+		case 'string':
+			return data;
+		case 'arrays':
+			return data.shuffle();
+		case 'handle':
+			return data;
+		case 'handleList':
+			return data.OrderByFormat(fb.TitleFormat('$rand()'));
+		case 'handleCached':
+			return data.OrderByFormat(fb.TitleFormat('$rand()'));
+		case 'handleListCached':
+			return data.OrderByFormat(fb.TitleFormat('$rand()'));
+		case 'handleListArray':
+			return data.shuffle();
+		case 'handleListArrayCached':
+			return data.shuffle();
+		default:
+			return data.shuffle();
 	}
 };
