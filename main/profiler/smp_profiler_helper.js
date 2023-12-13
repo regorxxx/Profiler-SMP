@@ -138,7 +138,7 @@ function ProfileRunner({profiles, iterations, magnitude, memory, parent = null, 
 	};
 	
 	this.runFunction = async (profile, func, data) => {
-				const type = func.testDataType || profile.testDataType;
+		const type = func.testDataType || profile.testDataType;
 		const d = profile.shuffleData 
 			? shuffleData(data || testdata(type, this.magnitude), type)
 			: data || testdata(type, this.magnitude);
