@@ -1,0 +1,1 @@
+See full [changelog here](https://github.com/regorxxx/Profiler-SMP/blob/main/CHANGELOG.md).
