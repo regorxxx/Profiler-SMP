@@ -1,5 +1,8 @@
 'use strict';
-//11/03/23
+//17/12/23
+
+/* exported addEventListener, removeEventListener, removeEventListeners, removeEventListenerSelf, registerAllCallbacks */
+
 
 /*
 	Usage:
@@ -7,25 +10,25 @@
 			const listener = () => {console.log('Hello world!');};
 			const id = addEventListener('on_mouse_lbtn_up', listener);
 		- removeEventListener(): to remove a previously added listener. For ex:
-			removeEventListener('on_mouse_lbtn_up', listener); // Previous id may also be useds	
+			removeEventListener('on_mouse_lbtn_up', listener); // Previous id may also be used
 		- findEventListener(): to find if some listener is attached to a callback. For ex:
 			const idx = findEventListener('on_mouse_lbtn_up', listener); // -1 since it has been previously removed
-		- removeEventListeners(): to remove all listeners atached to a callback. For ex:
+		- removeEventListeners(): to remove all listeners attached to a callback. For ex:
 			removeEventListeners('on_focus'); // true
-			
-		Following [mozilla implementation](https://developer.mozilla.org/es/docs/Web/API/EventTarget/removeEventListener)
+
+		Following [Mozilla implementation](https://developer.mozilla.org/es/docs/Web/API/EventTarget/removeEventListener)
 		event listeners may be removed using their UUID or event listener function itself.
 		addEventListener() returns the UUID for the provided	function, which may be useful for anonymous or inline functions.
 		removeEventListener() accepts both the listener (2nd arg) or UUID (3rd arg) as arguments.
-		
+
 		Callback registering is done under the hood automatically although it may be done manually using
 		registerCallback() or registerAllCallbacks(). Note registering a callback multiple times will effectively duplicate
 		the listener calls, so it should be avoided. Removing all listeners associated to a callback will not unregister
 		the callback itself, which would be an undesirable effect in some cases and harmless in any other case.
-		
+
 		Callbacks previously added to any script will be wrapped and used along those added with event listeners as long as
-		callback registering is done automatically, so they may work in conjunction. 
-		
+		callback registering is done automatically, so they may work in conjunction.
+
 		See examples for more info.
 */
 
@@ -94,12 +97,12 @@ const callbacks = {
 	on_selection_changed:					{listeners: [], bRegistered: false},
 	on_size:								{listeners: [], bRegistered: false},
 	on_volume_change:						{listeners: [], bRegistered: false}
-}
+};
 
 const parentWindow = this; // This is Window in this context without SMP wrapping
 parentWindow.eventListener = {event: null, id: null};
 
-function addEventListener(event, listener, bRegister = true) {
+function addEventListener(event, listener, bRegister = true) { // eslint-disable-line no-redeclare
 	if (!callbacks.hasOwnProperty(event)) {console.log('addEventListener: event does not exist -> ' + event); return false;}
 	const id = UUID();
 	callbacks[event].listeners.push({id, listener});
@@ -110,13 +113,10 @@ function addEventListener(event, listener, bRegister = true) {
 function findEventListener(event, listener = null, id = null) {
 	if (!callbacks.hasOwnProperty(event)) {return -1;}
 	if (!listener && !id) {return -1;}
-	const idx = callbacks[event].listeners.findIndex((event) => {
-		return event.id === id || event.listener === listener;
-	});
-	return idx;
+	return callbacks[event].listeners.findIndex((event) => (event.id === id || event.listener === listener));
 }
 
-function removeEventListener(event, listener = null, id = null) {
+function removeEventListener(event, listener = null, id = null) { // eslint-disable-line no-redeclare
 	if (!callbacks.hasOwnProperty(event)) {return false;}
 	if (!listener && !id) {return false;}
 	const idx = findEventListener(event, listener, id);
@@ -134,7 +134,7 @@ function removeEventListeners(event) {
 }
 
 // Should only be called within an event listener, since 'this' points to 'parentWindow'
-const removeEventListenerSelf = () => {return removeEventListener(this.eventListener.event, null, this.eventListener.id);}
+const removeEventListenerSelf = () => removeEventListener(this.eventListener.event, null, this.eventListener.id);
 
 /*
 	Register callbacks
@@ -151,7 +151,7 @@ const fireEvents = function(event) {
 		});
 		return bReturn;
 	};
-}
+};
 
 function registerCallback(event) {
 	if (typeof parentWindow[event] !== 'undefined') {
@@ -160,7 +160,7 @@ function registerCallback(event) {
 			const cache = oldFunc.apply(parentWindow, arguments);
 			const output = fireEvents(event).apply(parentWindow, arguments);
 			return (cache || output); // To be used by on_mouse_rbtn_up to disable default menu
-		}
+		};
 	} else {
 		parentWindow[event] = fireEvents(event).bind(parentWindow);
 	}
@@ -176,9 +176,10 @@ function registerAllCallbacks() {
 */
 if (typeof UUID === 'undefined') {
 	var UUID = () => {
-		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g , function(c) {
-				const rnd = Math.random() * 16 | 0, v = c === 'x' ? rnd : (rnd&0x3|0x8) ;
-				return v.toString(16);
+		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g , (c) => {
+			const rnd = Math.random() * 16 | 0;
+			const v = c === 'x' ? rnd : (rnd&0x3|0x8);
+			return v.toString(16);
 		});
 	};
 }
