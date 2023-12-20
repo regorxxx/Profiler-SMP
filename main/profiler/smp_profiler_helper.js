@@ -1,19 +1,23 @@
 ﻿'use strict';
-//26/10/23
+//19/12/23
 
-const module = {exports: {}};
+/* exported smpProfiler, skipProfiles, setProfilesPath */
+
+var module = {exports: {}};
 include('smp_profiler_data.js');
+/* global testData:readable, copyData:readable, shuffleData:readable */
+/* global settings:readable */
 include('..\\..\\helpers-external\\easy-table-1.2.0\\table.js'); const Table = module.exports;
 
 const popup = {ok : 0, yes_no : 4, yes : 6, no : 7, stop : 16, question : 32, info : 64};
 const skipProfiles = [	// Skip these methods (too slow), don't bring new info...
-		'concatForUnshift', 
-		'concatReduceRight', 
-		'concatApplyUnshift', 
-		'concatReduce',
-		'copyAppendLiteral',
-		'copyNewArray',
-		'getFileInfoHandle'
+	'concatForUnshift',
+	'concatReduceRight',
+	'concatApplyUnshift',
+	'concatReduce',
+	'copyAppendLiteral',
+	'copyNewArray',
+	'getFileInfoHandle'
 ].filter(Boolean);
 
 // File helpers
@@ -38,7 +42,6 @@ function setProfilesPath(def = fb.ProfilePath + 'scripts\\SMP\\xxx-scripts\\help
 		}
 		return null;
 	}
-	return null;
 }
 
 // Object helpers
@@ -95,17 +98,17 @@ function ProfileRunner({profiles, iterations, magnitude, memory, parent = null, 
 	this.magnitude = magnitude;
 	this.memory = memory;
 	this.results = [];
-	
+
 	const fnLen = this.profiles.reduce((total, profile) => {return total + profile.functions.length;}, 0);
 	let currFn = null;
-	
+
 	this.updateProgress = async (val) => {
 		if (parent) {
 			parent.progress = val !== null ? Math.round(val) : null;
 			if (bRepaint) {window.Repaint();}
 		}
-	}
-	
+	};
+
 	this.run = async () => {
 		this.updateProgress(0);
 		try {
@@ -123,7 +126,7 @@ function ProfileRunner({profiles, iterations, magnitude, memory, parent = null, 
 			currFn = null;
 		}
 	};
-	
+
 	this.runProfile = async (profile) => {
 		const testResults = [];
 		for (const fn of profile.functions) {
@@ -136,13 +139,13 @@ function ProfileRunner({profiles, iterations, magnitude, memory, parent = null, 
 		};
 		return result;
 	};
-	
+
 	this.runFunction = async (profile, func, data) => {
 		const type = func.testDataType || profile.testDataType;
-		const d = profile.shuffleData 
-			? shuffleData(data || testdata(type, this.magnitude), type)
-			: data || testdata(type, this.magnitude);
-		
+		const d = profile.shuffleData
+			? shuffleData(data || testData(type, this.magnitude), type)
+			: data || testData(type, this.magnitude);
+
 		const result = {
 			time: {
 				average: 0.0,
@@ -161,7 +164,7 @@ function ProfileRunner({profiles, iterations, magnitude, memory, parent = null, 
 				maximum: -Infinity
 			};
 		}
-		
+
 		const bCopyData = profile.shuffleData;
 		for (let i = 0, duration, profile; i < this.iterations; i++) {
 			profile = await profiler({
@@ -187,13 +190,13 @@ function ProfileRunner({profiles, iterations, magnitude, memory, parent = null, 
 				result.time.maximum = duration;
 			}
 		}
-		
+
 		result.time.average = result.time.total / this.iterations;
 		if (this.memory) {
 			result.memory.average = result.memory.total / this.iterations;
 		}
 		return result;
-	}
+	};
 }
 
 const smpProfiler = {
@@ -229,22 +232,22 @@ const smpProfiler = {
 		if (Array.isArray(profileName)) {return profileName.map((p) => this.getDefaultOptions(p));}
 		let defaultProfileOptions = {};
 		const currProfile = this.profiles.find((profile) => {return profile.name === profileName;});
-		if (currProfile.hasOwnProperty('defaultOptions')) {defaultProfileOptions = currProfile.defaultOptions || {};}
+		if (Object.prototype.hasOwnProperty.call(currProfile, 'defaultOptions')) {defaultProfileOptions = currProfile.defaultOptions || {};}
 		return defaultProfileOptions;
 	},
 	hasDefaultOptions: function hasDefaultOptions(profileName) {
 		if (Array.isArray(profileName)) {return profileName.map((p) => this.hasDefaultOptions(p));}
 		const currProfile = this.profiles.find((profile) => {return profile.name === profileName;});
-		return currProfile.hasOwnProperty('defaultOptions') && currProfile.defaultOptions;
+		return Object.prototype.hasOwnProperty.call(currProfile, 'defaultOptions') && currProfile.defaultOptions;
 	},
 	// Merge single profile tests options with defaults if available. Adds an inherited flag in such case
 	mergeOptions: function mergeOptions(options) {
 		return options.map((oldOpt) => {
 			const hasDefault = oldOpt.profiles.length === 1 && this.hasDefaultOptions(oldOpt.profiles[0]);
 			let newOpt = hasDefault ? {...this.getDefaultOptions(oldOpt.profiles[0]), ...oldOpt} : oldOpt;
-			if (!newOpt.hasOwnProperty('memory')) {newOpt.memory = false;}
-			if (!newOpt.hasOwnProperty('bRepaint')) {newOpt.bRepaint = true;}
-			if (!newOpt.hasOwnProperty('type')) {newOpt.type = 'json';}
+			if (!Object.prototype.hasOwnProperty.call(newOpt, 'memory')) {newOpt.memory = false;}
+			if (!Object.prototype.hasOwnProperty.call(newOpt, 'bRepaint')) {newOpt.bRepaint = true;}
+			if (!Object.prototype.hasOwnProperty.call(newOpt, 'type')) {newOpt.type = 'json';}
 			const different = compareKeys(newOpt, oldOpt);
 			if (newOpt !== oldOpt && different.length) {newOpt = {inherited: different.join(', '), ...newOpt};}
 			return newOpt;
@@ -288,7 +291,7 @@ const smpProfiler = {
 			const WshShellUI = new ActiveXObject('WScript.Shell');
 			const answer = WshShellUI.Popup('Warning: \'recursion\' profile requires a lot of memory.\nMagnitude settings greater than 5000 may produce crashes.\nDo you want to continue?', 0, window.ScriptInfo.Name, popup.question + popup.yes_no);
 			if (answer === popup.no) {
-				return new Promise((resolve) => { // Output empty test
+				return new Promise(() => { // Output empty test
 					return this.tests[this.tests.push({results: [], options}) - 1];
 				});
 			}
@@ -362,7 +365,7 @@ const smpProfiler = {
 				if (type === 'json-popup') {summaryData.forEach((report) => fb.ShowPopupMessage(JSON.stringify(report.value, null, '\t'), report.name));}
 				return summaryData;
 			} else {
-				fb.ShowPopupMessage('Report type not recognized: ' + type, profName); 
+				fb.ShowPopupMessage('Report type not recognized: ' + type, profName);
 				return [];
 			}
 		});

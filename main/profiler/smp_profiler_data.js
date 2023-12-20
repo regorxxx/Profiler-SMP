@@ -1,5 +1,7 @@
 ﻿'use strict';
-//26/10/23
+//19/12/23
+
+/* exported testData, copyData, shuffleData */
 
 const libItems = fb.GetLibraryItems();
 const libItemsArr = fb.GetLibraryItems().Convert();
@@ -60,7 +62,7 @@ const handleListArray = (len, bCached = true) => {
 
 const randFloat = (min = Number.MIN_VALUE, max = Number.MAX_VALUE) => {return Math.random() * (max - min) + min;};
 
-const testdata = (type = 'array', len = 1000, min, max) => {
+const testData = (type = 'array', len = 1000, min, max) => {
 	switch(type) {
 		case 'object':
 			return definedObject();
