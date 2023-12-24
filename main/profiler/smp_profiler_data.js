@@ -1,5 +1,5 @@
 ﻿'use strict';
-//19/12/23
+//24/12/23
 
 /* exported testData, copyData, shuffleData */
 
@@ -60,10 +60,10 @@ const handleListArray = (len, bCached = true) => {
 	return (bCached ? libItemsArr : fb.GetLibraryItems().Convert()).slice(0, len);
 };
 
-const randFloat = (min = Number.MIN_VALUE, max = Number.MAX_VALUE) => {return Math.random() * (max - min) + min;};
+const randFloat = (min = Number.MIN_VALUE, max = Number.MAX_VALUE) => { return Math.random() * (max - min) + min; };
 
-const testData = (type = 'array', len = 1000, min, max) => {
-	switch(type) {
+const testData = (type = 'array', len = 1000, min = 0, max  = 1) => {
+	switch (type) {
 		case 'object':
 			return definedObject();
 		case 'objectMap':
@@ -95,14 +95,14 @@ const testData = (type = 'array', len = 1000, min, max) => {
 
 const copyData = (data, type = 'array') => {
 	let temp;
-	switch(type) {
+	switch (type) {
 		case 'object':
 			temp = objectMap(definedObject);
-			for (let key of data) {temp[key] = data[key];}
+			for (let key of data) { temp[key] = data[key]; }
 			return temp;
 		case 'objectMap':
 			temp = objectMap(data.size);
-			for (let key of data) {temp[key] = data[key];}
+			for (let key of data) { temp[key] = data[key]; }
 			return temp;
 		case 'map':
 			return new Map(data);
@@ -131,14 +131,14 @@ const copyData = (data, type = 'array') => {
 
 const shuffleData = (data, type = 'array') => {
 	let temp;
-	switch(type) {
+	switch (type) {
 		case 'object':
 			temp = objectMap(definedObject);
-			Object.keys(data).shuffle().forEach((key) => {temp[key] = data[key];});
+			Object.keys(data).shuffle().forEach((key) => { temp[key] = data[key]; });
 			return temp;
 		case 'objectMap':
 			temp = objectMap(data.size);
-			Object.keys(data).shuffle().forEach((key) => {temp[key] = data[key];});
+			Object.keys(data).shuffle().forEach((key) => { temp[key] = data[key]; });
 			return temp;
 		case 'map':
 			return new Map(data.entries().shuffle());

@@ -1,15 +1,31 @@
 ﻿'use strict';
-//19/12/23
+//20/12/23
 
 /* exported smpProfiler, skipProfiles, setProfilesPath */
 
-var module = {exports: {}};
+var module = { exports: {} }; // NOSONAR
 include('smp_profiler_data.js');
 /* global testData:readable, copyData:readable, shuffleData:readable */
 /* global settings:readable */
 include('..\\..\\helpers-external\\easy-table-1.2.0\\table.js'); const Table = module.exports;
 
-const popup = {ok : 0, yes_no : 4, yes : 6, no : 7, stop : 16, question : 32, info : 64};
+// Add ES2022 method
+// https://github.com/tc39/proposal-accessible-object-hasownproperty
+if (!Object.hasOwn) {
+	Object.defineProperty(Object, 'hasOwn', {
+		enumerable: false,
+		configurable: false,
+		writable: false,
+		value: function (object, property) {
+			if (object === null) {
+				throw new TypeError('Cannot convert undefined or null to object');
+			}
+			return Object.prototype.hasOwnProperty.call(Object(object), property); // NOSONAR
+		}
+	});
+}
+
+const popup = { ok: 0, yes_no: 4, yes: 6, no: 7, stop: 16, question: 32, info: 64 };
 const skipProfiles = [	// Skip these methods (too slow), don't bring new info...
 	'concatForUnshift',
 	'concatReduceRight',
@@ -22,7 +38,7 @@ const skipProfiles = [	// Skip these methods (too slow), don't bring new info...
 
 // File helpers
 function getFiles(folderPath, extensionSet) {
-	if (!utils.IsDirectory(folderPath)) {return [];}
+	if (!utils.IsDirectory(folderPath)) { return []; }
 	return utils.Glob(folderPath + '*.*').filter((item) => {
 		return extensionSet.has('.' + item.split('.').pop().toLowerCase());
 	});
@@ -45,7 +61,7 @@ function setProfilesPath(def = fb.ProfilePath + 'scripts\\SMP\\xxx-scripts\\help
 }
 
 // Object helpers
-Set.prototype.difference = function(setB) {
+Set.prototype.difference = function (setB) {
 	let difference = new Set(this);
 	for (let elem of setB) {
 		difference.delete(elem);
@@ -53,7 +69,7 @@ Set.prototype.difference = function(setB) {
 	return difference;
 };
 
-Array.prototype.shuffle = function() {
+Array.prototype.shuffle = function () {
 	let last = this.length, n;
 	while (last > 0) {
 		n = Math.floor(Math.random() * last--);
@@ -89,23 +105,23 @@ const profiler = async (options) => {
 		};
 	};
 	const result = await profile(options.fn, options.data);
-	return (options.memory ? result : {time: result.time});
+	return (options.memory ? result : { time: result.time });
 };
 
-function ProfileRunner({profiles, iterations, magnitude, memory, parent = null, bRepaint = false}) {
+function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null, bRepaint = false }) {
 	this.profiles = profiles.slice();
 	this.iterations = iterations;
 	this.magnitude = magnitude;
 	this.memory = memory;
 	this.results = [];
 
-	const fnLen = this.profiles.reduce((total, profile) => {return total + profile.functions.length;}, 0);
+	const fnLen = this.profiles.reduce((total, profile) => { return total + profile.functions.length; }, 0);
 	let currFn = null;
 
 	this.updateProgress = async (val) => {
 		if (parent) {
 			parent.progress = val !== null ? Math.round(val) : null;
-			if (bRepaint) {window.Repaint();}
+			if (bRepaint) { window.Repaint(); }
 		}
 	};
 
@@ -116,7 +132,6 @@ function ProfileRunner({profiles, iterations, magnitude, memory, parent = null, 
 			currFn = 0;
 			for (const profile of this.profiles) {
 				results.push(await this.runProfile(profile));
-				// await new Promise(resolve => setTimeout(resolve, 500));
 			}
 			this.updateProgress(null);
 			currFn = null;
@@ -207,8 +222,8 @@ const smpProfiler = {
 		const tests = getFiles(folder, new Set(['.js']));
 		this.profiles = tests.map((file) => {
 			include(file);
-			module.exports.functions = module.exports.functions.filter((fn) => {return !excludeNames.includes(fn.name);});
-			return {...module.exports};
+			module.exports.functions = module.exports.functions.filter((fn) => { return !excludeNames.includes(fn.name); });
+			return { ...module.exports };
 		});
 		this.progress = null;
 		this.tests = [];
@@ -221,35 +236,35 @@ const smpProfiler = {
 		}));
 	},
 	getResults: function getResults(i = -1) {
-		if (i >= this.getResultsNum()) {i = this.getResultsNum() - 1;}
-		if (i < -1) {return null;}
+		if (i >= this.getResultsNum()) { i = this.getResultsNum() - 1; }
+		if (i < -1) { return null; }
 		return (i === -1 ? this.tests : this.tests[i]);
 	},
 	getResultsNum: function getResultsNum() {
 		return this.tests.length;
 	},
 	getDefaultOptions: function getDefaultOptions(profileName) {
-		if (Array.isArray(profileName)) {return profileName.map((p) => this.getDefaultOptions(p));}
+		if (Array.isArray(profileName)) { return profileName.map((p) => this.getDefaultOptions(p)); }
 		let defaultProfileOptions = {};
-		const currProfile = this.profiles.find((profile) => {return profile.name === profileName;});
-		if (Object.prototype.hasOwnProperty.call(currProfile, 'defaultOptions')) {defaultProfileOptions = currProfile.defaultOptions || {};}
+		const currProfile = this.profiles.find((profile) => { return profile.name === profileName; });
+		if (Object.hasOwn(currProfile, 'defaultOptions')) { defaultProfileOptions = currProfile.defaultOptions || {}; }
 		return defaultProfileOptions;
 	},
 	hasDefaultOptions: function hasDefaultOptions(profileName) {
-		if (Array.isArray(profileName)) {return profileName.map((p) => this.hasDefaultOptions(p));}
-		const currProfile = this.profiles.find((profile) => {return profile.name === profileName;});
-		return Object.prototype.hasOwnProperty.call(currProfile, 'defaultOptions') && currProfile.defaultOptions;
+		if (Array.isArray(profileName)) { return profileName.map((p) => this.hasDefaultOptions(p)); }
+		const currProfile = this.profiles.find((profile) => { return profile.name === profileName; });
+		return Object.hasOwn(currProfile, 'defaultOptions') && currProfile.defaultOptions;
 	},
 	// Merge single profile tests options with defaults if available. Adds an inherited flag in such case
 	mergeOptions: function mergeOptions(options) {
 		return options.map((oldOpt) => {
 			const hasDefault = oldOpt.profiles.length === 1 && this.hasDefaultOptions(oldOpt.profiles[0]);
-			let newOpt = hasDefault ? {...this.getDefaultOptions(oldOpt.profiles[0]), ...oldOpt} : oldOpt;
-			if (!Object.prototype.hasOwnProperty.call(newOpt, 'memory')) {newOpt.memory = false;}
-			if (!Object.prototype.hasOwnProperty.call(newOpt, 'bRepaint')) {newOpt.bRepaint = true;}
-			if (!Object.prototype.hasOwnProperty.call(newOpt, 'type')) {newOpt.type = 'json';}
+			let newOpt = hasDefault ? { ...this.getDefaultOptions(oldOpt.profiles[0]), ...oldOpt } : oldOpt;
+			if (!Object.hasOwn(newOpt, 'memory')) { newOpt.memory = false; }
+			if (!Object.hasOwn(newOpt, 'bRepaint')) { newOpt.bRepaint = true; }
+			if (!Object.hasOwn(newOpt, 'type')) { newOpt.type = 'json'; }
 			const different = compareKeys(newOpt, oldOpt);
-			if (newOpt !== oldOpt && different.length) {newOpt = {inherited: different.join(', '), ...newOpt};}
+			if (newOpt !== oldOpt && different.length) { newOpt = { inherited: different.join(', '), ...newOpt }; }
 			return newOpt;
 		});
 	},
@@ -257,9 +272,9 @@ const smpProfiler = {
 		const currSettings = this.mergeOptions(options.slice());
 		const currSettingsStr = JSON.stringify(currSettings, null, '\t').replace(/"inherited": (.*),/g, '// Inherited $1 from default settings');
 		const message = 'Total tests: ' + currSettings.length +
-						'\n\nProfiles: ' + currSettings.map((o) => o.profiles.join(', ')).join(', ') +
-						'\n\nOptions:\n' + currSettingsStr;
-		if (bPopup) {fb.ShowPopupMessage(message, 'Tests list');}
+			'\n\nProfiles: ' + currSettings.map((o) => o.profiles.join(', ')).join(', ') +
+			'\n\nOptions:\n' + currSettingsStr;
+		if (bPopup) { fb.ShowPopupMessage(message, 'Tests list'); }
 		return message;
 	},
 	run: function run(opts) {
@@ -284,15 +299,15 @@ const smpProfiler = {
 		};
 		let p = this.profiles.slice();
 		if (options.profiles && Array.isArray(options.profiles) && options.profiles.length) {
-			p = p.filter((profile) => {return options.profiles.includes(profile.name);});
+			p = p.filter((profile) => { return options.profiles.includes(profile.name); });
 		}
 		// Check for dangerous options
-		if (options.magnitude > 5000 && p.some((profile) => {return profile.name === 'recursion';})) {
+		if (options.magnitude > 5000 && p.some((profile) => { return profile.name === 'recursion'; })) {
 			const WshShellUI = new ActiveXObject('WScript.Shell');
 			const answer = WshShellUI.Popup('Warning: \'recursion\' profile requires a lot of memory.\nMagnitude settings greater than 5000 may produce crashes.\nDo you want to continue?', 0, window.ScriptInfo.Name, popup.question + popup.yes_no);
 			if (answer === popup.no) {
 				return new Promise(() => { // Output empty test
-					return this.tests[this.tests.push({results: [], options}) - 1];
+					return this.tests[this.tests.push({ results: [], options }) - 1];
 				});
 			}
 		}
@@ -306,7 +321,7 @@ const smpProfiler = {
 			bRepaint: options.bRepaint
 		});
 		return profileRunner.run().then((resolve) => { // Output the last test
-			return this.tests[this.tests.push({results: resolve, options}) - 1];
+			return this.tests[this.tests.push({ results: resolve, options }) - 1];
 		});
 	},
 	reportTest: function reportTest(test = this.tests.slice(-1)[0], type = 'json') { // Single test report
@@ -323,30 +338,30 @@ const smpProfiler = {
 					t.cell('Avg (ms)', val.time.average, Table.number(2));
 					t.cell('Max (ms)', val.time.maximum, Table.number(2));
 					t.cell('Total (ms)', val.time.total, Table.number(2));
-					if (bMemory) {t.cell('Memory (MB)', val.memory.maximum / 1000, Table.number(2));}
+					if (bMemory) { t.cell('Memory (MB)', val.memory.maximum / 1000, Table.number(2)); }
 					t.newRow();
 				});
 				const summaryData = [
-					{Name: 'Profile name', 				Value: profName},
-					{Name: 'Data type', 				Value: result.profile.testDataType},
-					{Name: 'Data size', 				Value: test.options.magnitude},
-					{Name: 'Iterations', 				Value: test.options.iterations},
-					{Name: 'Fastest method',			Value: sortTime[0].func.name},
-					{Name: 'Time (ms)',					Value: sortTime[0].time.average},
-					{Name: 'Slowest method',			Value: sortTime.slice(-1)[0].func.name},
-					{Name: 'Time (ms)',					Value: sortTime.slice(-1)[0].time.average},
+					{ Name: 'Profile name', Value: profName },
+					{ Name: 'Data type', Value: result.profile.testDataType },
+					{ Name: 'Data size', Value: test.options.magnitude },
+					{ Name: 'Iterations', Value: test.options.iterations },
+					{ Name: 'Fastest method', Value: sortTime[0].func.name },
+					{ Name: 'Time (ms)', Value: sortTime[0].time.average },
+					{ Name: 'Slowest method', Value: sortTime.slice(-1)[0].func.name },
+					{ Name: 'Time (ms)', Value: sortTime.slice(-1)[0].time.average },
 				];
 				if (bMemory) {
 					summaryData.push(
-						{Name: 'Highest mem. usage method',	Value: sortMem[0].func.name},
-						{Name: 'Memory (bytes)',			Value: sortMem[0].memory.maximum},
-						{Name: 'Lowest mem. usage method',	Value: sortMem.slice(-1)[0].func.name},
-						{Name: 'Memory (bytes)',			Value: sortMem.slice(-1)[0].memory.maximum}
+						{ Name: 'Highest mem. usage method', Value: sortMem[0].func.name },
+						{ Name: 'Memory (bytes)', Value: sortMem[0].memory.maximum },
+						{ Name: 'Lowest mem. usage method', Value: sortMem.slice(-1)[0].func.name },
+						{ Name: 'Memory (bytes)', Value: sortMem.slice(-1)[0].memory.maximum }
 					);
 				}
 				const tables = [
-					{name: 'Method list: ' + profName, value: t.toString()},
-					{name: 'Summary: ' + profName, value: Table.print(summaryData)}
+					{ name: 'Method list: ' + profName, value: t.toString() },
+					{ name: 'Summary: ' + profName, value: Table.print(summaryData) }
 				];
 				tables.forEach((report) => fb.ShowPopupMessage(report.value, report.name));
 				return tables;
@@ -354,15 +369,15 @@ const smpProfiler = {
 				const fastest = sortTime.filter((a, i, arr) => a.time.average === arr[0].time.average);
 				const smallest = bMemory ? sortTime.filter((a, i, arr) => a.memory.maximum === arr[0].memory.maximum) : null;
 				const summaryData = [
-					{name: 'Raw report: ' + profName, value: sortTime},
-					{name: 'Fastest method: ' + profName, value: fastest},
+					{ name: 'Raw report: ' + profName, value: sortTime },
+					{ name: 'Fastest method: ' + profName, value: fastest },
 				];
 				if (bMemory) {
 					summaryData.push(
-						{name: 'Less memory usage method: ' + profName, value: smallest}
+						{ name: 'Less memory usage method: ' + profName, value: smallest }
 					);
 				}
-				if (type === 'json-popup') {summaryData.forEach((report) => fb.ShowPopupMessage(JSON.stringify(report.value, null, '\t'), report.name));}
+				if (type === 'json-popup') { summaryData.forEach((report) => fb.ShowPopupMessage(JSON.stringify(report.value, null, '\t'), report.name)); }
 				return summaryData;
 			} else {
 				fb.ShowPopupMessage('Report type not recognized: ' + type, profName);
@@ -371,7 +386,7 @@ const smpProfiler = {
 		});
 	},
 	report: function report(tests = this.tests.slice(-1), type = 'json') { // Report for all tests done on session
-		return tests.map((test) => {return this.reportTest(test, type);});
+		return tests.map((test) => { return this.reportTest(test, type); });
 	},
 	runAndReport: function runAndReport(opts, type = opts.type || 'json') { // Run one test and report immediately
 		return this.run(opts).then((test) => {
