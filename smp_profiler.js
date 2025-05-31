@@ -7,7 +7,7 @@ include('helpers\\callbacks_xxx.js');
 include(fb.ComponentPath + 'docs\\Flags.js');
 /* global DT_VCENTER:readable, DT_CENTER:readable, DT_END_ELLIPSIS:readable, DT_CALCRECT:readable, DT_NOPREFIX:readable, popup:readable, MK_SHIFT:readable */
 
-if (!window.ScriptInfo.PackageId) { window.DefineScript('Profiler-SMP', { author: 'XXX', version: '1.0.1' }); }
+if (!window.ScriptInfo.PackageId) { window.DefineScript('Profiler-SMP', { author: 'XXX', version: '1.1.0' }); }
 
 // Default settings for all tests and memory for Foobar2000 ones
 const settings = {
