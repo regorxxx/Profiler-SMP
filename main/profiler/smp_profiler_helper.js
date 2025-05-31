@@ -1,5 +1,5 @@
 ﻿'use strict';
-//20/12/23
+//28/05/25
 
 /* exported smpProfiler, skipProfiles, setProfilesPath */
 
@@ -25,6 +25,30 @@ if (!Object.hasOwn) {
 	});
 }
 
+if (!Promise.wait) {
+	Object.defineProperty(Promise, 'wait', {
+		enumerable: false,
+		configurable: false,
+		writable: false,
+		value: (ms) => {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+	});
+}
+
+function getRoot(bRelative = true) {
+	if (window.ScriptInfo.PackageId) {
+		return utils.GetPackageInfo(window.ScriptInfo.PackageId).Directories.Root.replace((bRelative ? fb.ProfilePath : ''), '');
+	} else {
+		try { include(''); }
+		catch (e) {
+			return e.message.replace('include failed:\nPath does not point to a valid file: ', '')
+				.replace((bRelative ? fb.ProfilePath : ''), '')
+				.replace(/(helpers|main\\profiler)\\$/, ''); // Required since include() points to this file (not the main one)
+		}
+	}
+};
+
 const popup = { ok: 0, yes_no: 4, yes: 6, no: 7, stop: 16, question: 32, info: 64 };
 const skipProfiles = [	// Skip these methods (too slow), don't bring new info...
 	'concatForUnshift',
@@ -44,7 +68,7 @@ function getFiles(folderPath, extensionSet) {
 	});
 }
 
-function setProfilesPath(def = fb.ProfilePath + 'scripts\\SMP\\xxx-scripts\\helpers\\profiler\\') {
+function setProfilesPath(def = getRoot(false) + 'helpers\\profiler\\') {
 	try {
 		const input = utils.InputBox(window.ID, 'Edit profiles path:\n(Don\'t try to load other JS files!)\n\nNot changing the path will reload the profiles from folder.', 'SMP Profiler', settings.path || def, true);
 		if (!utils.IsDirectory(input)) {
@@ -53,7 +77,7 @@ function setProfilesPath(def = fb.ProfilePath + 'scripts\\SMP\\xxx-scripts\\help
 		}
 		return input;
 	} catch (e) {
-		if (e.message.indexOf('Dialog window was closed') === -1) {
+		if (!e.message.includes('Dialog window was closed')) {
 			fb.ShowPopupMessage(e, 'JSON error');
 		}
 		return null;
@@ -61,7 +85,7 @@ function setProfilesPath(def = fb.ProfilePath + 'scripts\\SMP\\xxx-scripts\\help
 }
 
 // Object helpers
-Set.prototype.difference = function (setB) {
+Set.prototype.difference = function (setB) { // NOSONAR
 	let difference = new Set(this);
 	for (let elem of setB) {
 		difference.delete(elem);
@@ -69,32 +93,22 @@ Set.prototype.difference = function (setB) {
 	return difference;
 };
 
-Array.prototype.shuffle = function () {
-	let last = this.length, n;
-	while (last > 0) {
-		n = Math.floor(Math.random() * last--);
-		[this[n], this[last]] = [this[last], this[n]];
-	}
-	return this;
-};
-
 function compareKeys(a, b) {
-	const aKeys = Object.keys(a).sort();
-	const bKeys = Object.keys(b).sort();
+	const aKeys = Object.keys(a).sort((a, b) => a.localeCompare(b));
+	const bKeys = Object.keys(b).sort((a, b) => a.localeCompare(b));
 	return [...new Set(aKeys).difference(new Set(bKeys))];
 }
 
 // Profiler
 const profiler = async (options) => {
 	const profile = async (fn, data) => {
-		let time = 0, heap = 0;
-		const t = new FbProfiler('test');
+		let time = 0, heap = 0, now = 0;
 		await new Promise((resolve) => {
 			setTimeout(() => {
-				t.Reset();
+				now = Date.now();
 				const heapUsedStart = window.JsMemoryStats.MemoryUsage;
 				fn(data);
-				time = t.Time;
+				time = Date.now() - now;
 				heap = window.JsMemoryStats.MemoryUsage - heapUsedStart;
 				resolve();
 			}, 2);
@@ -115,7 +129,7 @@ function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null,
 	this.memory = memory;
 	this.results = [];
 
-	const fnLen = this.profiles.reduce((total, profile) => { return total + profile.functions.length; }, 0);
+	const fnLen = this.profiles.reduce((total, profile) => total + profile.functions.length, 0);
 	let currFn = null;
 
 	this.updateProgress = async (val) => {
@@ -136,7 +150,7 @@ function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null,
 			this.updateProgress(null);
 			currFn = null;
 			return results;
-		} catch (e) {
+		} catch (e) { // eslint-disable-line no-unused-vars
 			this.updateProgress(null);
 			currFn = null;
 		}
@@ -145,6 +159,7 @@ function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null,
 	this.runProfile = async (profile) => {
 		const testResults = [];
 		for (const fn of profile.functions) {
+			await Promise.wait(500); // Let GC do its work
 			testResults.push(await this.runFunction(profile, fn));
 			this.updateProgress(++currFn / fnLen * 100);
 		}
@@ -158,8 +173,8 @@ function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null,
 	this.runFunction = async (profile, func, data) => {
 		const type = func.testDataType || profile.testDataType;
 		const d = profile.shuffleData
-			? shuffleData(data || testData(type, this.magnitude), type)
-			: data || testData(type, this.magnitude);
+			? shuffleData(data || testData(type, this.magnitude, void(0), void(0), parent ? parent.path : fb.ProfilePath), type)
+			: data || testData(type, this.magnitude, void(0), void(0), parent ? parent.path : fb.ProfilePath);
 
 		const result = {
 			time: {
@@ -180,8 +195,10 @@ function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null,
 			};
 		}
 
-		const bCopyData = profile.shuffleData;
+		const bCopyData = profile.copyData;
+		const wait = profile.waitBetweenRuns || 0;
 		for (let i = 0, duration, profile; i < this.iterations; i++) {
+			if (wait && i % wait === 0) { await Promise.wait(100); } // Let GC do its work
 			profile = await profiler({
 				fn: func.f,
 				data: bCopyData ? copyData(d, type) : d,
@@ -216,17 +233,19 @@ function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null,
 
 const smpProfiler = {
 	progress: null,
+	path: '',
 	profiles: [],
 	tests: [],
-	loadProfiles: function loadProfiles(folder, excludeNames = []) { // Will also clean all previous test results
+	loadProfiles: function loadProfiles(folder, excludeNames = []) { // Will also clean all previous test
 		const tests = getFiles(folder, new Set(['.js']));
 		this.profiles = tests.map((file) => {
 			include(file);
-			module.exports.functions = module.exports.functions.filter((fn) => { return !excludeNames.includes(fn.name); });
+			module.exports.functions = module.exports.functions.filter((fn) => !excludeNames.includes(fn.name));
 			return { ...module.exports };
 		});
 		this.progress = null;
 		this.tests = [];
+		this.path = folder;
 	},
 	list: function list() {
 		return this.profiles.map((profile) => ({
@@ -246,13 +265,13 @@ const smpProfiler = {
 	getDefaultOptions: function getDefaultOptions(profileName) {
 		if (Array.isArray(profileName)) { return profileName.map((p) => this.getDefaultOptions(p)); }
 		let defaultProfileOptions = {};
-		const currProfile = this.profiles.find((profile) => { return profile.name === profileName; });
+		const currProfile = this.profiles.find((profile) => profile.name === profileName);
 		if (Object.hasOwn(currProfile, 'defaultOptions')) { defaultProfileOptions = currProfile.defaultOptions || {}; }
 		return defaultProfileOptions;
 	},
 	hasDefaultOptions: function hasDefaultOptions(profileName) {
 		if (Array.isArray(profileName)) { return profileName.map((p) => this.hasDefaultOptions(p)); }
-		const currProfile = this.profiles.find((profile) => { return profile.name === profileName; });
+		const currProfile = this.profiles.find((profile) => profile.name === profileName);
 		return Object.hasOwn(currProfile, 'defaultOptions') && currProfile.defaultOptions;
 	},
 	// Merge single profile tests options with defaults if available. Adds an inherited flag in such case
@@ -270,9 +289,13 @@ const smpProfiler = {
 	},
 	reportSettings: function reportSettings(options, bPopup = true) {
 		const currSettings = this.mergeOptions(options.slice());
+		const profiles = new Set(currSettings.map((o) => o.profiles).flat(Infinity));
 		const currSettingsStr = JSON.stringify(currSettings, null, '\t').replace(/"inherited": (.*),/g, '// Inherited $1 from default settings');
 		const message = 'Total tests: ' + currSettings.length +
-			'\n\nProfiles: ' + currSettings.map((o) => o.profiles.join(', ')).join(', ') +
+			'\n\nProfiles: ' + currSettings.map((o) => o.profiles).flat(Infinity).join(', ') +
+			'\n\nFunctions: ' + this.profiles.filter((p) => profiles.has(p.name))
+				.map((p) => p.functions.map((f) => f.name))
+				.flat(Infinity).join(', ') +
 			'\n\nOptions:\n' + currSettingsStr;
 		if (bPopup) { fb.ShowPopupMessage(message, 'Tests list'); }
 		return message;
@@ -299,10 +322,10 @@ const smpProfiler = {
 		};
 		let p = this.profiles.slice();
 		if (options.profiles && Array.isArray(options.profiles) && options.profiles.length) {
-			p = p.filter((profile) => { return options.profiles.includes(profile.name); });
+			p = p.filter((profile) => options.profiles.includes(profile.name));
 		}
 		// Check for dangerous options
-		if (options.magnitude > 5000 && p.some((profile) => { return profile.name === 'recursion'; })) {
+		if (options.magnitude > 5000 && p.some((profile) => profile.name === 'recursion')) {
 			const WshShellUI = new ActiveXObject('WScript.Shell');
 			const answer = WshShellUI.Popup('Warning: \'recursion\' profile requires a lot of memory.\nMagnitude settings greater than 5000 may produce crashes.\nDo you want to continue?', 0, window.ScriptInfo.Name, popup.question + popup.yes_no);
 			if (answer === popup.no) {
@@ -379,6 +402,17 @@ const smpProfiler = {
 				}
 				if (type === 'json-popup') { summaryData.forEach((report) => fb.ShowPopupMessage(JSON.stringify(report.value, null, '\t'), report.name)); }
 				return summaryData;
+			} else if (type.startsWith('csv')) {
+				let t = [];
+				t.push('Method Name,Avg (ms),Max (ms),Total (ms)' + (bMemory ? ',Memory (MB)' : ''));
+				sortTime.forEach((val) =>
+					t.push(val.func.name + ',' + val.time.average + ',' + val.time.maximum + ',' + val.time.total + (bMemory ? ',' + val.memory.maximum / 1000 : ''))
+				);
+				const summaryData = [
+					{ name: 'Raw report: ' + profName, value: t.join('\n') },
+				];
+				if (type === 'csv-popup') { summaryData.forEach((report) => fb.ShowPopupMessage(report.value, report.name)); }
+				return summaryData;
 			} else {
 				fb.ShowPopupMessage('Report type not recognized: ' + type, profName);
 				return [];
@@ -386,11 +420,11 @@ const smpProfiler = {
 		});
 	},
 	report: function report(tests = this.tests.slice(-1), type = 'json') { // Report for all tests done on session
-		return tests.map((test) => { return this.reportTest(test, type); });
+		return tests.map((test) => this.reportTest(test, type));
 	},
 	runAndReport: function runAndReport(opts, type = opts.type || 'json') { // Run one test and report immediately
-		return this.run(opts).then((test) => {
-			this.reportTest(test, type);
-		});
+		return this.run(opts).then((test) =>
+			this.reportTest(test, type)
+		);
 	}
 };
