@@ -1,5 +1,6 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
 	const setMap = {
 		name: 'setMap',
@@ -8,7 +9,7 @@
 			'map',
 			'creation',
 			'set'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'Map.set()',
 		f: (d) => {
 			const m = new Map();
@@ -26,7 +27,7 @@
 			'construtor',
 			'key-value',
 			'pairs'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'new Map([props])',
 		f: (d) => new Map(d.map((dp, i) => [i, dp]))
 	};
@@ -40,7 +41,7 @@
 			'object',
 			'literal',
 			'properties'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: '{}.prop = val',
 		f: (d) => {
 			const m = {};
@@ -59,7 +60,7 @@
 			'literal',
 			'defineProperty',
 			'properties'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'Object.defineProperty({}, prop, desc)',
 		f: (d) => {
 			const m = {};
@@ -83,7 +84,7 @@
 			'literal',
 			'defineProperties',
 			'properties'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'Object.defineProperties({}, props)',
 		f: (d) => {
 			const m = {};
@@ -109,7 +110,7 @@
 			'spread',
 			'syntax',
 			'properties'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: '{ ...props }',
 		f: (d) => ({
 			...d
@@ -133,13 +134,14 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a,b) => a.localeCompare(b)),
 		functions,
 		testDataType: 'array',
+		waitBetweenRuns: 50,
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 20000
+			'iterations': 1000,
+			'magnitude': 100000
 		}
 	};
 }

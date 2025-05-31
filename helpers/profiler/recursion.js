@@ -1,5 +1,6 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
 	const recursiveSum = {
 		name: 'recursiveSum',
@@ -7,7 +8,7 @@
 		keywords: [
 			'recursion',
 			'sum'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'const f = (d) => (d && d.length && (d[0] + f(d.slice(1)))) || 0',
 		f: (d) => (d && d.length && (d[0] + recursiveSum.f(d.slice(1)))) || 0
 	};
@@ -20,7 +21,7 @@
 			'sum',
 			'tail',
 			'tailrecursion'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'const f = (d, i = 0) => (!d.length && i) || f(d.slice(1), i + d[0])',
 		f: (d, i = 0) => (!d.length && i) || tailRecursiveSum.f(d.slice(1), i + d[0])
 	};
@@ -32,12 +33,12 @@
 			'for',
 			'loop',
 			'sum'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'for (...) { sum += d[i] }',
 		f: (d) => {
 			let sum = 0;
-			for (let i = 0; i < d.length; i++) {
-				sum += d[i];
+			for (const element of d) {
+				sum += element;
 			}
 			return sum;
 		}
@@ -57,13 +58,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a,b) => a.localeCompare(b)),
 		functions,
 		testDataType: 'array',
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 200
+			'iterations': 1000,
+			'magnitude': 200
 		}
 	};
 }

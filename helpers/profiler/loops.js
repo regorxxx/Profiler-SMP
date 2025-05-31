@@ -1,5 +1,6 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
 	const loopForEach = {
 		name: 'loopForEach',
@@ -10,7 +11,7 @@
 			'push',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '[].forEach((d) => [].push(d)) => []',
 		f: (d) => {
 			const r = [];
@@ -28,13 +29,13 @@
 			'push',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'for(i < d.length; i++) { [].push(d[i]) } => []',
 		f: (d) => {
 			const r = [];
 			let dp;
-			for (let i = 0; i < d.length; i++) {
-				dp = d[i];
+			for (const element of d) {
+				dp = element;
 				r.push(dp < 5 && dp > 3);
 			}
 			return r;
@@ -52,7 +53,7 @@
 			'variable',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'for(i < len; i++) { [].push(d[i]) } => []',
 		f: (d) => {
 			const r = [];
@@ -76,7 +77,7 @@
 			'push',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'while(i--) { [].push(d[i]) } => []',
 		f: (d) => {
 			const r = [];
@@ -100,7 +101,7 @@
 			'push',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'while(i < d.length) { [].push(d[i]) } => []',
 		f: (d) => {
 			const r = [];
@@ -126,7 +127,7 @@
 			'push',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'while(i < len) { [].push(d[i]) } => []',
 		f: (d) => {
 			const r = [];
@@ -152,7 +153,7 @@
 			'push',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'do { [].push(d[i]) } while (i < d.length) => []',
 		f: (d) => {
 			const r = [];
@@ -179,7 +180,7 @@
 			'variable',
 			'iteration',
 			'array'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'do { [].push(d[i]) } while (i < len) => []',
 		f: (d) => {
 			const r = [];
@@ -203,7 +204,7 @@
 			'loop',
 			'iteration',
 			'array'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '[].map() => []',
 		f: (d) => d.map((dp) => dp < 5 && dp > 3)
 	};
@@ -220,7 +221,7 @@
 			'iteration',
 			'array',
 			'loop'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'for (prop of []) { [].push(prop) } => []',
 		f: (d) => {
 			const r = [];
@@ -252,13 +253,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a, b) => a.localeCompare(b)),
 		functions,
 		testDataType: 'array',
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 10000
+			'iterations': 1000,
+			'magnitude': 100000
 		}
 	};
 }

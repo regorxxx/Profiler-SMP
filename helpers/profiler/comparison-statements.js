@@ -1,5 +1,6 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
 	const compIf = {
 		name: 'compIf',
@@ -15,7 +16,7 @@
 			'control structure',
 			'control flow',
 			'flow'
-		],
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
 			if (d === 0) {
 				return d;
@@ -40,9 +41,9 @@
 			'control structure',
 			'control flow',
 			'flow'
-		],
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
-			switch (d) {
+			switch (d) { // NOSONAR
 				case 0:
 					return d;
 				default:
@@ -63,7 +64,7 @@
 			'control structure',
 			'control flow',
 			'flow'
-		],
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'd > 0 ? d / 2 : d',
 		f: (d) => d > 0 ? d / 2 : d
 	};
@@ -81,7 +82,7 @@
 			'control structure',
 			'control flow',
 			'flow'
-		],
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '(d > 0 && d / 2) || d',
 		f: (d) => (d > 0 && d / 2) || d
 	};
@@ -101,13 +102,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a, b) => a.localeCompare(b)),
 		functions,
 		testDataType: 'number',
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 20000
+			'iterations': 1000,
+			'magnitude': void(0)
 		}
 	};
 }

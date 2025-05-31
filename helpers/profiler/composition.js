@@ -1,5 +1,6 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 /* eslint-disable no-unused-vars */
 {
 	const destructureObject = {
@@ -12,9 +13,9 @@
 			'destructuring',
 			'decomposition',
 			'composition'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
-			const { num, obj } = d;
+			const { num, obj } = d; // NOSONAR
 		},
 		testDataType: 'object'
 	};
@@ -31,9 +32,9 @@
 			'composition',
 			'default',
 			'values'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
-			const { num = 5, foo = 'bar' } = d;
+			const { num = 5, foo = 'bar' } = d; // NOSONAR
 		},
 		testDataType: 'object'
 	};
@@ -48,9 +49,9 @@
 			'destructuring',
 			'decomposition',
 			'composition'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
-			const [a, b] = d;
+			const [a, b] = d; // NOSONAR
 		},
 		testDataType: 'array'
 	};
@@ -67,9 +68,9 @@
 			'composition',
 			'default',
 			'values'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
-			const [a = 5, b] = d;
+			const [a = 5, b] = d; // NOSONAR
 		},
 		testDataType: 'array'
 	};
@@ -86,9 +87,9 @@
 			'composition',
 			'rest',
 			'tail'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
-			const [a, b, ...tail] = d;
+			const [a, b, ...tail] = d; // NOSONAR
 		},
 		testDataType: 'array'
 	};
@@ -102,10 +103,10 @@
 			'assignment',
 			'decomposition',
 			'composition'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
-			const a = d[0];
-			const b = d[1];
+			const a = d[0]; // NOSONAR
+			const b = d[1]; // NOSONAR
 		},
 		testDataType: 'array'
 	};
@@ -121,10 +122,10 @@
 			'composition',
 			'default',
 			'values'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
-			const a = d[0] || 5;
-			const b = d[1];
+			const a = d[0] || 5; // NOSONAR
+			const b = d[1]; // NOSONAR
 		},
 		testDataType: 'array'
 	};
@@ -138,9 +139,9 @@
 			'assignment',
 			'decomposition',
 			'composition'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
-			const str = d.obj.str;
+			const str = d.obj.str; // NOSONAR
 		},
 		testDataType: 'object'
 	};
@@ -156,9 +157,9 @@
 			'composition',
 			'default',
 			'values'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		f: (d) => {
-			const str = d.obj.foo || 'bar';
+			const str = d.obj.foo || 'bar'; // NOSONAR
 		},
 		testDataType: 'object'
 	};
@@ -178,7 +179,7 @@
 		f: (d) => {
 			let a = d[0];
 			let b = d[1];
-			[a, b] = [b, a];
+			[a, b] = [b, a]; // NOSONAR
 		},
 		testDataType: 'array'
 	};
@@ -197,8 +198,8 @@
 			let a = d[0];
 			let b = d[1];
 			const c = b;
-			b = a;
-			a = c;
+			b = a; // NOSONAR
+			a = c; // NOSONAR
 		},
 		testDataType: 'array'
 	};
@@ -225,12 +226,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a, b) => a.localeCompare(b)),
 		functions,
+		waitBetweenRuns: 50,
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 20000
+			'iterations': 1000,
+			'magnitude': 100000
 		}
 	};
 }

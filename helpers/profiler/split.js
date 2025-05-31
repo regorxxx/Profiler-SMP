@@ -1,22 +1,20 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
-	const re = /,/;
-	const reArr = /(,)|\|/;
-	
 	const splitString = {
 		name: 'splitString',
 		description: 'String\'s split() method',
 		keywords: [
 			'string',
 			'method'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'd.split(\',\')',
 		f: (d) => {
 			d.split(',');
 		}
 	};
-	
+
 	const splitStringRegExp = {
 		name: 'splitStringRegExp',
 		description: 'String\'s split() method with RegExp',
@@ -24,13 +22,13 @@
 			'string',
 			'method',
 			'RegExp'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'd.split(/,/)',
 		f: (d) => {
 			d.split(/,/);
 		}
 	};
-	
+
 	const splitStringRegExpCached = {
 		name: 'splitStringRegExpCached',
 		description: 'String\'s split() method with RegExp',
@@ -38,13 +36,16 @@
 			'string',
 			'method',
 			'RegExp'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'const re = \'/,/\'; d.split(re)',
-		f: (d) => {
-			d.split(re);
-		}
+		f: (() => {
+			const re = /,/;
+			return (d) => {
+				d.split(re);
+			};
+		})()
 	};
-	
+
 	const splitStringArray = {
 		name: 'splitStringArray',
 		description: 'String\'s split() method into SubArrays with map()',
@@ -52,13 +53,13 @@
 			'string',
 			'method',
 			'array'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'd.split(\',\').map((s) => {return s.split(\'|\');})',
 		f: (d) => {
 			d.split(',').map((s) => {return s.split('|');});
 		}
 	};
-	
+
 	const splitStringArrayReduce = {
 		name: 'splitStringArrayReduce',
 		description: 'String\'s split() method into SubArrays with reduce()',
@@ -66,18 +67,21 @@
 			'string',
 			'method',
 			'array'
-		].sort(),
-		codeSample: 'd.split(/(,)|\|/).reduce((arr, s) => {s !== \',\' && arr.push(s)})',
-		f: (d) => {
-			let len = 0;
-			return d.split(reArr).reduce((arr, s) => {
-				if (',' === s) {len = arr.push([]) - 1;}
-				else if (s !== void(0) && s !== "") {arr[len].push(s);}
-				return arr;
-			}, [[]]);
-		}
+		].sort((a,b) => a.localeCompare(b)),
+		codeSample: 'd.split(/(,)|\\|/).reduce((arr, s) => {s !== \',\' && arr.push(s)})',
+		f: (() => {
+			const re = /(,)|\|/;
+			return (d) => {
+				let len = 0;
+				return d.split(re).reduce((arr, s) => {
+					if (',' === s) {len = arr.push([]) - 1;}
+					else if (s !== void(0) && s !== '') {arr[len].push(s);}
+					return arr;
+				}, [[]]);
+			};
+		})()
 	};
-	
+
 	const functions = [
 		splitString,
 		splitStringRegExp,
@@ -94,13 +98,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a,b) => a.localeCompare(b)),
 		functions,
 		testDataType: 'string',
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 20000
+			'iterations': 1000,
+			'magnitude': 10000
 		}
 	};
 }

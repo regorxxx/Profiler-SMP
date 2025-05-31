@@ -1,8 +1,7 @@
 'use strict';
-//27/10/23
-
+//28/05/25
+/* global module:readable */
 include('..\\..\\helpers-external\\bitmasksorterjs\\bitmasksorterjs.js'); const RadixBit = module.exports;
-
 {
 	const sortRadix = {
 		name: 'Radix',
@@ -14,28 +13,27 @@ include('..\\..\\helpers-external\\bitmasksorterjs\\bitmasksorterjs.js'); const 
 			'push',
 			'spread',
 			'method'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		f: (d) => {
 			function getDigit(num, place) {
 				return Math.floor(Math.abs(num) / Math.pow(10, place)) % 10;
 			}
 			const maxDigitCount = d.reduce((acc, num) => {
 				return Math.max(acc,
-					num === 0 
-						? 1 
+					num === 0
+						? 1
 						: Math.floor(Math.log10(Math.abs(num))) + 1
 				);
 			}, 0);
-			const len = d.length;
 			for (let k = 0; k < maxDigitCount; k++) {
-				let digitBuckets = Array.from({length: 10}, () => []) // [[], [], [],...]
-				for (let i = 0; i < d.length; i++) {
-					let digit = getDigit(d[i], k);
-					digitBuckets[digit].push(d[i]);
+				let digitBuckets = Array.from({length: 10}, () => []); // [[], [], [],...]
+				for (const element of d) {
+					let digit = getDigit(element, k);
+					digitBuckets[digit].push(element);
 				}
 				// New order after each loop
 				d.length = 0;
-				digitBuckets.forEach((arr) => d.push.apply(d, arr));
+				digitBuckets.forEach((arr) => d.push.apply(d, arr)); // NOSONAR
 			}
 			return d;
 		}
@@ -51,7 +49,7 @@ include('..\\..\\helpers-external\\bitmasksorterjs\\bitmasksorterjs.js'); const 
 			'push',
 			'spread',
 			'method'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		f: (d) => RadixBit.sortNumber(d)
 	};
 
@@ -65,10 +63,10 @@ include('..\\..\\helpers-external\\bitmasksorterjs\\bitmasksorterjs.js'); const 
 			'push',
 			'spread',
 			'method'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		f: (d) => RadixBit.sortNumber(d).reverse()
 	};
-	
+
 	const sortRadixRev = {
 		name: 'Radix Reverse',
 		description: 'Array\'s reverse radix sort method for numbers',
@@ -79,7 +77,7 @@ include('..\\..\\helpers-external\\bitmasksorterjs\\bitmasksorterjs.js'); const 
 			'push',
 			'spread',
 			'method'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		f: (d) => {
 			const bInvert = true;
 			function getDigit(num, place) {
@@ -87,21 +85,20 @@ include('..\\..\\helpers-external\\bitmasksorterjs\\bitmasksorterjs.js'); const 
 			}
 			const maxDigitCount = d.reduce((acc, num) => {
 				return Math.max(acc,
-					num === 0 
-						? 1 
+					num === 0
+						? 1
 						: Math.floor(Math.log10(Math.abs(num))) + 1
 				);
 			}, 0);
-			const len = d.length;
 			for (let k = 0; k < maxDigitCount; k++) {
-				let digitBuckets = Array.from({length: 10}, () => []) // [[], [], [],...]
-				for (let i = 0; i < d.length; i++) {
-					const digit = bInvert ? 9 - getDigit(d[i], k) : getDigit(d[i], k);
-					digitBuckets[digit].push(d[i]);
+				let digitBuckets = Array.from({length: 10}, () => []); // [[], [], [],...]
+				for (const element of d) {
+					const digit = bInvert ? 9 - getDigit(element, k) : getDigit(element, k);
+					digitBuckets[digit].push(element);
 				}
 				// New order after each loop
 				d.length = 0;
-				digitBuckets.forEach((arr) => d.push.apply(d, arr));
+				digitBuckets.forEach((arr) => d.push.apply(d, arr)); // NOSONAR
 			}
 			return d;
 		}
@@ -137,15 +134,16 @@ include('..\\..\\helpers-external\\bitmasksorterjs\\bitmasksorterjs.js'); const 
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-		)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a,b) => a.localeCompare(b)),
 		functions,
 		testDataType: 'array',
 		shuffleData: true,
 		copyData: true,
+		waitBetweenRuns: 50,
 		defaultOptions: {
-			"iterations": 500,
-			"magnitude": 100000
+			'iterations': 1000,
+			'magnitude': 100000
 		}
 	};
 }

@@ -1,5 +1,6 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
 	const guardStrictTypeofNotUndefined = {
 		name: 'guardStrictTypeofNotUndefined',
@@ -16,7 +17,7 @@
 			'defined',
 			'equality',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'typeof d !== \'undefined\'',
 		f: (d) => typeof d !== 'undefined'
 	};
@@ -36,7 +37,7 @@
 			'defined',
 			'equality',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'typeof d != \'undefined\'',
 		f: (d) => typeof d != 'undefined' // eslint-disable-line eqeqeq
 	};
@@ -55,7 +56,7 @@
 			'undefined',
 			'defined',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '!(d === undefined || d === null)',
 		f: (d) => !(d === undefined || d === null)
 	};
@@ -74,7 +75,7 @@
 			'undefined',
 			'defined',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '!(d == undefined || d == null)',
 		f: (d) => !(d == undefined || d == null) // eslint-disable-line eqeqeq
 	};
@@ -92,7 +93,7 @@
 			'typeof',
 			'type',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'typeof d === \'number\'',
 		f: (d) => typeof d === 'number'
 	};
@@ -110,7 +111,7 @@
 			'typeof',
 			'type',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'typeof d == \'number\'',
 		f: (d) => typeof d == 'number' // eslint-disable-line eqeqeq
 	};
@@ -128,7 +129,7 @@
 			'typeof',
 			'type',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'typeof d === \'string\'',
 		f: (d) => typeof d === 'string'
 	};
@@ -146,7 +147,7 @@
 			'typeof',
 			'type',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'typeof d == \'string\'',
 		f: (d) => typeof d == 'string' // eslint-disable-line eqeqeq
 	};
@@ -164,7 +165,7 @@
 			'typeof',
 			'type',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'typeof d === \'object\'',
 		f: (d) => typeof d === 'object'
 	};
@@ -182,7 +183,7 @@
 			'typeof',
 			'type',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'typeof d === \'object\'',
 		f: (d) => typeof d == 'object' // eslint-disable-line eqeqeq
 	};
@@ -200,7 +201,7 @@
 			'typeof',
 			'type',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'typeof d === \'function\'',
 		f: (d) => typeof d === 'function'
 	};
@@ -218,7 +219,7 @@
 			'typeof',
 			'type',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'typeof d == \'function\'',
 		f: (d) => typeof d == 'function' // eslint-disable-line eqeqeq
 	};
@@ -234,7 +235,7 @@
 			'array',
 			'isArray',
 			'method'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'Array.isArray(d)',
 		f: (d) => Array.isArray(d)
 	};
@@ -254,7 +255,7 @@
 			'bool',
 			'boolean',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '!!var',
 		f: (d) => !!d
 	};
@@ -271,7 +272,7 @@
 			'operator',
 			'bool',
 			'boolean'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '!var',
 		f: (d) => !d
 	};
@@ -289,7 +290,7 @@
 			'isnan',
 			'global',
 			'method'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '!isNaN(var)',
 		f: (d) => !isNaN(d)
 	};
@@ -306,7 +307,7 @@
 			'type',
 			'isnan',
 			'method'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '!Number.isNaN(var)',
 		f: (d) => !Number.isNaN(d)
 	};
@@ -323,7 +324,7 @@
 			'not',
 			'global',
 			'method'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'isNaN(var)',
 		f: (d) => isNaN(d)
 	};
@@ -339,7 +340,7 @@
 			'not a number',
 			'not',
 			'method'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'Number.isNaN(var)',
 		f: (d) => Number.isNaN(d)
 	};
@@ -356,7 +357,7 @@
 			'defined',
 			'type',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'prop in obj',
 		f: (d) => 'num' in d,
 		testDataType: 'object'
@@ -376,7 +377,7 @@
 			'method',
 			'target',
 			'prototype'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'obj.hasOwnProperty(prop)',
 		f: (d) => d.hasOwnProperty('num'), // eslint-disable-line no-prototype-builtins
 		testDataType: 'object'
@@ -395,9 +396,9 @@
 			'hasownproperty',
 			'method',
 			'prototype'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'Object.prototype.hasOwnProperty.call(obj, prop)',
-		f: (d) => Object.prototype.hasOwnProperty.call(d, 'num'),
+		f: (d) => Object.prototype.hasOwnProperty.call(d, 'num'), // NOSONAR
 		testDataType: 'object'
 	};
 
@@ -434,12 +435,12 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a, b) => a.localeCompare(b)),
 		functions,
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 20000
+			'iterations': 1000,
+			'magnitude': 1
 		}
 	};
 }

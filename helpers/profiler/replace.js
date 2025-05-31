@@ -1,13 +1,21 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
 	// Helper
-	String.prototype.replaceAll = function replaceAll(word, newWord) {
+	String.prototype.replaceAll = function replaceAll(word, newWord) { // NOSONAR
+		const len = newWord.length;
 		let copy = this;
-		while (copy.indexOf(word) !== -1) {copy = copy.replace(word, newWord);}
+		let prevIdx = copy.indexOf(word);
+		let idx = prevIdx;
+		while (idx !== -1) {
+			copy = copy.replace(word, newWord);
+			prevIdx = idx + len;
+			idx = copy.indexOf(word, prevIdx);
+		}
 		return copy;
-	}	
-	
+	};
+
 	const consecutiveReplaceRegExp = {
 		name: 'consecutiveReplaceRegExp',
 		description: 'String\'s .replace() method using RegExp multiple times',
@@ -15,7 +23,7 @@
 			'RegExp',
 			'string',
 			'method'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'd.replace(..., ...).replace(..., ...)...',
 		f: (d) => {
 			return d.replace(/:/g, '_')
@@ -27,10 +35,9 @@
 				.replace(/\*/g, '')
 				.replace(/"/g, '\'')
 				.replace(/\|/g, '-');
-		},
-		testDataType: 'string'
+		}
 	};
-	
+
 	const singleReplaceRegExp = {
 		name: 'singleReplaceRegExp',
 		description: 'String\'s .replace() method using RegExp',
@@ -38,37 +45,35 @@
 			'RegExp',
 			'string',
 			'method'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'd.replace(..., ...)',
 		f: (d) => {
 			return d.replace(/:|\\|\/|\|/g, '_')
-				.replace(/\?|<|>|\*|"/g, '')
-		},
-		testDataType: 'string'
+				.replace(/\?|<|>|\*|"/g, '');
+		}
 	};
-	
+
 	const consecutiveReplace = {
 		name: 'consecutiveReplace',
 		description: 'String\'s .replaceAll() method multiple times',
 		keywords: [
 			'string',
 			'method'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'd.replaceAll(..., ...).replaceAll(..., ...)...',
 		f: (d) => {
 			return d.replaceAll(':', '_')
 				.replaceAll('\\', '-')
-				.replaceAll('\/', '-')
-				.replaceAll('\?', '')
+				.replaceAll('/', '-')
+				.replaceAll('?', '')
 				.replaceAll('<`', '')
 				.replaceAll('>', '')
-				.replaceAll('\*', '')
+				.replaceAll('*', '')
 				.replaceAll('"', '\'')
-				.replaceAll('\|', '-');
-		},
-		testDataType: 'string'
+				.replaceAll('|', '-');
+		}
 	};
-	
+
 	const functions = [
 		consecutiveReplaceRegExp,
 		singleReplaceRegExp,
@@ -83,12 +88,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a,b) => a.localeCompare(b)),
 		functions,
+		testDataType: 'string',
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 10000
+			'iterations': 1000,
+			'magnitude': 10000
 		}
 	};
 }

@@ -1,8 +1,9 @@
-'use strict';
-//01/11/22
+﻿'use strict';
+//26/05/25
+/* global module:readable */
 {
-	const tags = ['GENRE', 'STYLE'];
-	
+	const tags = ['GENRE', 'STYLE', 'DATE'];
+
 	const getTFHandleListArray = {
 		name: 'getTFHandleListArray',
 		description: 'Handle List\'s EvalWithMetadbs() method',
@@ -15,26 +16,25 @@
 			'concat',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'tfo.EvalWithMetadbs(d)',
 		f: (d) => {
 			const tagsLen = tags.length;
-			const handleLen = d.Count;
 			let tagString = '';
 			for (let i = 0; i < tagsLen; i++) {
-				const tagStr = tags[i].indexOf('$') === -1 ? '%' + tags[i] + '%' : tags[i];
-				tagString += (i === 0 ? '' : '| ') + '[' + tagStr + ']';
+				const tagStr = !tags[i].includes('$') ? '%' + tags[i] + '%' : tags[i];
+				tagString += (i === 0 ? '' : '|‎|') + '[' + tagStr + ']';
 			}
 			let tfo = fb.TitleFormat(tagString);
 			return tfo.EvalWithMetadbs(d).map((arr) => {
-				return arr.split('| ').map((subArr) => {
+				return arr.split('|‎|').map((subArr) => {
 					return subArr.split(', ');
 				});
 			});
 		},
 		testDataType: 'handleListCached'
 	};
-	
+
 	const getTFHandleListArrayMemoize = {
 		name: 'getTFHandleListArrayMemoize',
 		description: 'Handle List\'s EvalWithMetadbs() method with memoization; faster for repetitive tags',
@@ -47,28 +47,27 @@
 			'concat',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'tfo.EvalWithMetadbs(d)',
 		f: (d) => {
 			const tagsLen = tags.length;
-			const handleLen = d.Count;
 			let tagString = '';
-			const dic = {_:{}};
+			const dic = { _: {} };
 			for (let i = 0; i < tagsLen; i++) {
-				const tagStr = tags[i].indexOf('$') === -1 ? '%' + tags[i] + '%' : tags[i];
-				tagString += (i === 0 ? '' : '| ') + '[' + tagStr + ']';
+				const tagStr = !tags[i].includes('$') ? '%' + tags[i] + '%' : tags[i];
+				tagString += (i === 0 ? '' : '|‎|') + '[' + tagStr + ']';
 				dic[i] = {};
 			}
 			let tfo = fb.TitleFormat(tagString);
 			return tfo.EvalWithMetadbs(d).map((arr) => {
-				return dic._[arr] ? dic._[arr].slice() : dic._[arr] = arr.split('| ').map((subArr, i) => {
-					return (dic[i][subArr] ? dic[i][subArr].slice() : dic[i][subArr] = subArr.split(', '));
+				return dic._[arr] ? dic._[arr].slice() : dic._[arr] = arr.split('|‎|').map((subArr, i) => { // NOSONAR
+					return (dic[i][subArr] ? dic[i][subArr].slice() : dic[i][subArr] = subArr.split(', ')); // NOSONAR
 				});
 			});
 		},
 		testDataType: 'handleListCached'
 	};
-	
+
 	const functions = [
 		getTFHandleListArray,
 		getTFHandleListArrayMemoize
@@ -82,12 +81,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a, b) => a.localeCompare(b)),
 		functions,
+		waitBetweenRuns: 10,
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 20000
+			'iterations': 200,
+			'magnitude': 100000
 		}
 	};
 }

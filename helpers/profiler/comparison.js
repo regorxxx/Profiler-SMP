@@ -1,5 +1,6 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
 	const compGreater = {
 		name: 'compGreater',
@@ -8,7 +9,7 @@
 			'comparison',
 			'greater',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a > b',
 		f: (d) => d > 5
 	};
@@ -21,7 +22,7 @@
 			'greater',
 			'equal',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a >= b',
 		f: (d) => d >= 5
 	};
@@ -33,7 +34,7 @@
 			'comparison',
 			'less',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a < b',
 		f: (d) => d < 5
 	};
@@ -46,7 +47,7 @@
 			'less',
 			'equal',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a <= b',
 		f: (d) => d <= 5
 	};
@@ -59,7 +60,7 @@
 			'equal',
 			'loose',
 			'equality'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a == b',
 		f: (d) => d == 5 // eslint-disable-line eqeqeq
 	};
@@ -76,7 +77,7 @@
 			'tripple',
 			'equals',
 			'type'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a === b',
 		f: (d) => d === 5
 	};
@@ -91,7 +92,7 @@
 			'equality',
 			'not',
 			'nonequal'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a != b',
 		f: (d) => d != 5 // eslint-disable-line eqeqeq
 	};
@@ -106,7 +107,7 @@
 			'equality',
 			'not',
 			'nonequal'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a !== b',
 		f: (d) => d !== 5
 	};
@@ -120,7 +121,7 @@
 			'and',
 			'boolean',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a && b',
 		f: (d) => d && d - 5
 	};
@@ -134,7 +135,7 @@
 			'or',
 			'boolean',
 			'operator'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a || b',
 		f: (d) => d || d - 5
 	};
@@ -160,13 +161,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a, b) => a.localeCompare(b)),
 		functions,
 		testDataType: 'number',
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 20000
+			'iterations': 1000,
+			'magnitude': void(0)
 		}
 	};
 }

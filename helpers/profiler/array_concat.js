@@ -1,5 +1,6 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
 	const concat = {
 		name: 'concat',
@@ -9,7 +10,7 @@
 			'concat',
 			'concatenation',
 			'method'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a.concat(b)',
 		f: (d) => d[0].concat(d[1])
 	};
@@ -25,11 +26,11 @@
 			'push',
 			'append',
 			'insert'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'for (...) { a.push(b[i]) }',
 		f: (d) => {
-			for (let i = 0; i < d[1].length; i++) {
-				d[0].push(d[1][i]);
+			for (const element of d[1]) {
+				d[0].push(element);
 			}
 			return d[0];
 		}
@@ -46,7 +47,7 @@
 			'unshift',
 			'prepend',
 			'insert'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'for (...) { b.unshift(a[i]) }',
 		f: (d) => {
 			for (let i = d[0].length - 1; i >= 0; i--) {
@@ -66,10 +67,10 @@
 			'push',
 			'append',
 			'insert'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a.push.apply(a, b)',
 		f: (d) => {
-			d[0].push.apply(d[0], d[1]);
+			d[0].push.apply(d[0], d[1]); // NOSONAR
 			return d[0];
 		}
 	};
@@ -84,10 +85,10 @@
 			'unshift',
 			'prepend',
 			'insert'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'b.unshift.apply(b, a)',
 		f: (d) => {
-			d[1].unshift.apply(d[1], d[0]);
+			d[1].unshift.apply(d[1], d[0]); // NOSONAR
 			return d[1];
 		}
 	};
@@ -102,7 +103,7 @@
 			'push',
 			'append',
 			'insert'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'b.reduce((arr, item) => arr.push(item), a)',
 		f: (d) => d[1].reduce((r, i) => {
 			r.push(i);
@@ -114,14 +115,14 @@
 		name: 'concatReduceRight',
 		description: 'prepend elements using reduceRight()',
 		keywords: [
-		'array',
-		'concatenation',
-		'reduce',
-		'reduceright',
-		'unshift',
-		'prepend',
-		'insert'
-		].sort(),
+			'array',
+			'concatenation',
+			'reduce',
+			'reduceright',
+			'unshift',
+			'prepend',
+			'insert'
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a.reduceRight((arr, item) => arr.unshift(item), b)',
 		f: (d) => d[0].reduceRight((r, i) => {
 			r.unshift(i);
@@ -139,7 +140,7 @@
 			'syntax',
 			'prepend',
 			'insert'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '[...a, ...b]',
 		f: (d) => [...d[0], ...d[1]]
 	};
@@ -163,13 +164,15 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a, b) => a.localeCompare(b)),
 		functions,
 		testDataType: 'arrays',
+		copyData: true,
+		waitBetweenRuns: 50,
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 10000
+			'iterations': 1000,
+			'magnitude': 100000
 		}
 	};
 }

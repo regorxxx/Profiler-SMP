@@ -1,5 +1,6 @@
 'use strict';
-//21/10/23
+//05/12/24
+/* global module:readable */
 {
 	const copySlice = {
 		name: 'copySlice',
@@ -10,9 +11,23 @@
 			'copy',
 			'slice',
 			'method'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: 'a.slice()',
 		f: (d) => d[0].slice()
+	};
+
+	const copySliceZero = {
+		name: 'copySliceZero',
+		description: 'Array\'s slice(0) method',
+		keywords: [
+			'array',
+			'clone',
+			'copy',
+			'slice',
+			'method'
+		].sort((a, b) => a.localeCompare(b)),
+		codeSample: 'a.slice(0)',
+		f: (d) => d[0].slice(0)
 	};
 
 	const copySpread = {
@@ -24,7 +39,7 @@
 			'copy',
 			'spread',
 			'syntax'
-		].sort(),
+		].sort((a, b) => a.localeCompare(b)),
 		codeSample: '[...a]',
 		f: (d) => [...d[0]]
 	};
@@ -41,7 +56,7 @@
 		],
 		codeSample: 'Array.from(a)',
 		f: (d) => Array.from(d[0])
-		};
+	};
 
 	const copyNewArray = {
 		name: 'copyNewArray',
@@ -69,7 +84,7 @@
 		],
 		codeSample: 'a.concat([])',
 		f: (d) => d[0].concat([])
-		};
+	};
 
 	const copyConcatBA = {
 		name: 'copyConcatBA',
@@ -255,6 +270,7 @@
 
 	const functions = [
 		copySlice,
+		copySliceZero,
 		copySpread,
 		copyFrom,
 		copyNewArray,
@@ -277,13 +293,14 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-		)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a, b) => a.localeCompare(b)),
 		functions,
 		testDataType: 'arrays',
+		waitBetweenRuns: 50,
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 10000
+			'iterations': 1000,
+			'magnitude': 100000
 		}
 	};
 }

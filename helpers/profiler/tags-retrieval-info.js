@@ -1,8 +1,9 @@
 'use strict';
-//01/11/22
+//28/05/25
+/* global module:readable */
 {
 	const tags = ['TITLE', 'ARTIST', 'ALBUM'];
-	
+
 	const getFileInfoHandle = {
 		name: 'getFileInfoHandle',
 		description: 'Handle\'s getFileInfo() method',
@@ -14,7 +15,7 @@
 			'loop',
 			'concat',
 			'array'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'd.GetFileInfo().MetaValue(tagIdx, n)',
 		f: (d) => {
 			const tagsLen = tags.length;
@@ -32,7 +33,7 @@
 		},
 		testDataType: 'handleCached'
 	};
-	
+
 	const getFileInfoHandleList = {
 		name: 'getFileInfoHandleList',
 		description: 'Handle List iterating getFileInfo() method',
@@ -45,7 +46,7 @@
 			'concat',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'dArr = d.Convert(); for(let i = 0; i < d.Count; i++) {dArr[i].GetFileInfo().MetaValue(tagIdx, n)}',
 		f: (d) => {
 			const tagsLen = tags.length;
@@ -69,7 +70,7 @@
 		},
 		testDataType: 'handleListCached'
 	};
-	
+
 	const getFileInfoHandleListArray = {
 		name: 'getFileInfoHandleListArray',
 		description: 'Handle List iterating getFileInfo() method',
@@ -82,7 +83,7 @@
 			'concat',
 			'array',
 			'iteration'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'for(let i = 0; i < d.length; i++) {d[i].GetFileInfo().MetaValue(tagIdx, n)}',
 		f: (d) => {
 			const tagsLen = tags.length;
@@ -120,12 +121,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a,b) => a.localeCompare(b)),
 		functions,
+		waitBetweenRuns: 10,
 		defaultOptions: {
-			"iterations": 10,
-			"magnitude": 20000
+			'iterations': 200,
+			'magnitude': 2000
 		}
 	};
 }

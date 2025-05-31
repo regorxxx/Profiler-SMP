@@ -1,5 +1,6 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
 	const randInt = (max) => Math.floor(Math.random() * Math.floor(max));
 
@@ -10,7 +11,7 @@
 			'map',
 			'access',
 			'get'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'Map.get()',
 		f: (d) => d.get(randInt(d.size - 1)),
 		testDataType: 'map'
@@ -24,7 +25,7 @@
 			'access',
 			'object',
 			'property'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: '{}.prop',
 		f: (d) => d[randInt(d.size - 1)],
 		testDataType: 'objectMap'
@@ -43,12 +44,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a,b) => a.localeCompare(b)),
 		functions,
+		waitBetweenRuns: 50,
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 20000
+			'iterations': 1000,
+			'magnitude': 100000
 		}
 	};
 }

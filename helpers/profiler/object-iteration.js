@@ -1,5 +1,6 @@
 'use strict';
-//01/11/22
+//26/05/25
+/* global module:readable */
 {
 	const forIn = {
 		name: 'forIn',
@@ -12,7 +13,7 @@
 			'loop',
 			'object',
 			'iteration'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'for (const prop in obj) { } => string',
 		f: (d) => {
 			let s = '';
@@ -33,7 +34,7 @@
 			'object',
 			'keys',
 			'property'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'Object.keys(obj).forEach() => string',
 		f: (d) => {
 			let s = '';
@@ -54,7 +55,7 @@
 			'object',
 			'entries',
 			'property'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'Object.entries(obj).forEach => string',
 		f: (d) => {
 			let s = '';
@@ -77,7 +78,7 @@
 			'property',
 			'loop',
 			'iteration'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'for (prop of Map.keys()) => string',
 		f: (d) => {
 			let s = '';
@@ -101,7 +102,7 @@
 			'property',
 			'loop',
 			'iteration'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'for (prop of Object.keys(obj)) => string',
 		f: (d) => {
 			let s = '';
@@ -128,7 +129,7 @@
 			'hasownperperty',
 			'own',
 			'ownproperty'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'for (prop of Object.keys(obj)) { obj.hasOwnProperty(prop) && ... }',
 		f: (d) => {
 			let s = '';
@@ -157,7 +158,7 @@
 			'getownpropertynames',
 			'object',
 			'loop'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'for (prop of Object.getOwnPropertyNames(obj)) => string',
 		f: (d) => {
 			let s = '';
@@ -183,7 +184,7 @@
 			'getownpropertynames',
 			'object',
 			'loop'
-		].sort(),
+		].sort((a,b) => a.localeCompare(b)),
 		codeSample: 'Object.getOwnPropertyNames(obj).forEach() => string',
 		f: (d) => {
 			let s = '';
@@ -213,13 +214,13 @@
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
-				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords])
-			)].sort(),
+				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
+		)].sort((a,b) => a.localeCompare(b)),
 		functions,
 		testDataType: 'object',
 		defaultOptions: {
-			"iterations": 100,
-			"magnitude": 20000
+			'iterations': 1000,
+			'magnitude': 100000
 		}
 	};
 }
