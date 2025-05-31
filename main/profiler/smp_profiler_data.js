@@ -1,7 +1,16 @@
 ﻿'use strict';
-//24/12/23
+//28/05/25
 
 /* exported testData, copyData, shuffleData */
+
+Array.prototype.shuffle = function () { // NOSONAR
+	let last = this.length, n;
+	while (last > 0) {
+		n = Math.floor(Math.random() * last--);
+		[this[n], this[last]] = [this[last], this[n]];
+	}
+	return this;
+};
 
 const libItems = fb.GetLibraryItems();
 const libItemsArr = fb.GetLibraryItems().Convert();
@@ -48,21 +57,39 @@ const string = (len) => {
 	return 'ab|c,'.repeat(len);
 };
 
+const handleRand = (bCached = true) => {
+	return (bCached ? libItems : fb.GetLibraryItems())[Math.floor(libItems.Count * Math.random())];
+};
+
 const handle = (bCached = true) => {
-	return (bCached ? libItems[0] : fb.GetLibraryItems()[0]);
+	return (bCached ? libItems : fb.GetLibraryItems())[0];
 };
 
 const handleList = (len, bCached = true) => {
 	return new FbMetadbHandleList((bCached ? libItemsArr : fb.GetLibraryItems().Convert()).slice(0, len));
 };
 
+const handleListRand = (len, bCached = true) => {
+	const indexes = intArray(libItems.Count).shuffle().slice(0, len);
+	const lib = bCached ? libItemsArr : fb.GetLibraryItems().Convert();
+	return new FbMetadbHandleList(indexes.map((idx) => lib[idx]));
+};
+
 const handleListArray = (len, bCached = true) => {
 	return (bCached ? libItemsArr : fb.GetLibraryItems().Convert()).slice(0, len);
 };
 
+const imagePath = (root = '') => {
+	return root + 'image.jpg';
+};
+
+const library = (bCached = true) => {
+	return (bCached ? libItems : fb.GetLibraryItems()); // NOSONAR
+};
+
 const randFloat = (min = Number.MIN_VALUE, max = Number.MAX_VALUE) => { return Math.random() * (max - min) + min; };
 
-const testData = (type = 'array', len = 1000, min = 0, max  = 1) => {
+const testData = (type = 'array', len = 1000, min = 0, max = 1, root = fb.ProfilePath) => {
 	switch (type) {
 		case 'object':
 			return definedObject();
@@ -78,16 +105,32 @@ const testData = (type = 'array', len = 1000, min = 0, max  = 1) => {
 			return [intArray(len), intArray(len)];
 		case 'handle':
 			return handle(false);
+		case 'handleRand':
+			return handleRand(false);
 		case 'handleList':
 			return handleList(len, false);
+		case 'handleListRand':
+			return handleListRand(len, false);
 		case 'handleCached':
 			return handle(true);
+		case 'handleRandCached':
+			return handleRand(true);
 		case 'handleListCached':
 			return handleList(len, true);
+		case 'handleListRandCached':
+			return handleListRand(len, false);
 		case 'handleListArray':
 			return handleListArray(len, false);
 		case 'handleListArrayCached':
 			return handleListArray(len, true);
+		case 'imagePath':
+			return imagePath(root);
+		case 'library':
+			return library(false);
+		case 'libraryCached':
+			return library(true);
+		case 'void':
+			return;
 		default:
 			return intArray(len);
 	}
@@ -107,23 +150,28 @@ const copyData = (data, type = 'array') => {
 		case 'map':
 			return new Map(data);
 		case 'number':
-			return data;
 		case 'string':
+		case 'imagePath':
 			return data;
 		case 'arrays':
 			return data.map((arr) => [...arr]);
 		case 'handle':
+		case 'handleRand':
+		case 'handleCached':
+		case 'handleRandCached':
 			return data;
 		case 'handleList':
-			return data.Clone();
-		case 'handleCached':
-			return data;
+		case 'handleListRand':
 		case 'handleListCached':
+		case 'handleListRandCached':
+		case 'library':
+		case 'libraryCached':
 			return data.Clone();
 		case 'handleListArray':
-			return [...data];
 		case 'handleListArrayCached':
 			return [...data];
+		case 'void':
+			return;
 		default:
 			return [...data];
 	}
@@ -143,23 +191,26 @@ const shuffleData = (data, type = 'array') => {
 		case 'map':
 			return new Map(data.entries().shuffle());
 		case 'number':
-			return data;
 		case 'string':
-			return data;
-		case 'arrays':
-			return data.shuffle();
 		case 'handle':
+		case 'handleRand':
+		case 'handleCached':
+		case 'handleRandCached':
+		case 'imagePath':
 			return data;
 		case 'handleList':
-			return data.OrderByFormat(fb.TitleFormat('$rand()'));
-		case 'handleCached':
-			return data.OrderByFormat(fb.TitleFormat('$rand()'));
+		case 'handleListRand':
 		case 'handleListCached':
-			return data.OrderByFormat(fb.TitleFormat('$rand()'));
+		case 'handleListRandCached':
+		case 'library':
+		case 'libraryCached':
+			return data.OrderByFormat(fb.TitleFormat('$rand()', 1));
+		case 'arrays':
 		case 'handleListArray':
-			return data.shuffle();
 		case 'handleListArrayCached':
 			return data.shuffle();
+		case 'void':
+			return;
 		default:
 			return data.shuffle();
 	}
