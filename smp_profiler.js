@@ -1,13 +1,13 @@
 ﻿'use strict';
-//19/12/23
+//30/05/25
 
-include('helpers\\callbacks_xxx.js');
 include('main\\profiler\\smp_profiler_helper.js');
 /* global setProfilesPath:readable, smpProfiler:readable, skipProfiles:readable */
+include('helpers\\callbacks_xxx.js');
 include(fb.ComponentPath + 'docs\\Flags.js');
-/* global DT_VCENTER:readable, DT_CENTER:readable, DT_END_ELLIPSIS:readable, DT_CALCRECT:readable, DT_NOPREFIX:readable, popup:readable */
+/* global DT_VCENTER:readable, DT_CENTER:readable, DT_END_ELLIPSIS:readable, DT_CALCRECT:readable, DT_NOPREFIX:readable, popup:readable, MK_SHIFT:readable */
 
-if (!window.ScriptInfo.PackageId) { window.DefineScript('Profiler-SMP', { author: 'XXX', version: '1.0.0' }); }
+if (!window.ScriptInfo.PackageId) { window.DefineScript('Profiler-SMP', { author: 'XXX', version: '1.0.1' }); }
 
 // Default settings for all tests and memory for Foobar2000 ones
 const settings = {
@@ -19,11 +19,13 @@ const settings = {
 			'array sorting', 'loops', 'comparison operators',
 			'comparison statements', '(de-)composition',
 			'guards', 'map:access', 'map:creation',
-			'object iteration', 'recursion', 'split'
+			'object iteration', 'recursion', 'split', 'handlelist'
 		].map((profile) => { return { profiles: [profile], memory: false, type: 'table' }; })
 			.concat([
+				{ profiles: ['real scripts'], memory: true, type: 'table' },
 				{ profiles: ['tags:retrieval:info'], memory: true, type: 'table' },
-				{ profiles: ['tags:retrieval:tf'], memory: true, type: 'table' }
+				{ profiles: ['tags:retrieval:tf'], memory: true, type: 'table' },
+				{ profiles: ['tags:retrieval:tf:full'], memory: true, type: 'table' }
 			])
 	))
 };
@@ -51,8 +53,8 @@ addEventListener('on_paint', (gr) => {
 	gr.FillSolidRect(w, h / 2, w * 2, h / 2, 0xFFDDA0DD); // Plum
 	gr.FillSolidRect(w * 3 / 2, h / 2, w * 2, h / 2, 0xFFBC8F8F); // RosyBrown
 	gr.GdiDrawText(
-		smpProfiler.progress !== null
-			? smpProfiler.progress + '%'
+		smpProfiler.bIsRunning
+			? (smpProfiler.progress || 0) + '%'
 			: 'Run' + (!settings.path ? '\n(set profiles path first)' : ''), settings.font, 0xFF000000, 0, 0, w, h, center
 	);
 	gr.GdiDrawText('Profiles path', settings.font, 0xFF000000, w, 0, w, h / 2, center);
@@ -73,7 +75,24 @@ addEventListener('on_mouse_lbtn_up', (x, y, mask) => { // eslint-disable-line no
 			const WshShellUI = new ActiveXObject('WScript.Shell');
 			const answer = WshShellUI.Popup('Tests will be run during some minutes.\nWindow will appear to be blocked.\nCheck popup for full list, do you want to continue?', 0, window.ScriptInfo.Name, popup.question + popup.yes_no);
 			if (answer === popup.yes) {
-				settings.options.forEach((opt) => { smpProfiler.runAndReport(opt); });
+				smpProfiler.bIsRunning = true;
+				if (mask === MK_SHIFT) {
+					Promise.all(settings.options.map((opt) => smpProfiler.runAndReport(opt, 'csv')).flat(Infinity))
+						.then((results) => {
+							const report = 'Method Name,Avg (ms),Max (ms),Total (ms),Memory (MB)\n' +
+								results.flat(Infinity)
+									.map((report) => report.value
+										.replace('Method Name,Avg (ms),Max (ms),Total (ms),Memory (MB)\n', '')
+										.replace('Method Name,Avg (ms),Max (ms),Total (ms)\n', '')
+									).join('\n');
+							console.log(report);
+							fb.ShowPopupMessage(report, 'Merged report');
+						})
+						.finally(() => smpProfiler.bIsRunning = false);;
+				} else {
+					Promise.all(settings.options.map((opt) => smpProfiler.runAndReport(opt)))
+						.finally(() => smpProfiler.bIsRunning = false);
+				}
 			}
 		}
 	} else if (y >= h / 2) {
@@ -91,7 +110,7 @@ addEventListener('on_mouse_lbtn_up', (x, y, mask) => { // eslint-disable-line no
 				settings.options = input;
 				window.SetProperty('Test options', JSON.stringify(settings.options));
 			} catch (e) {
-				if (e.message.indexOf('Dialog window was closed') === -1) {
+				if (!e.message.includes('Dialog window was closed')) {
 					fb.ShowPopupMessage(e, 'JSON error');
 				}
 			}
@@ -123,6 +142,8 @@ addEventListener('on_mouse_move', (x, y) => {
 		text += '\n--------------------------------------------------------------------------------------------------' +
 			'\nTotal tests: ' + settings.options.length +
 			'\nProfiles: ' + settings.options.map((o) => o.profiles.join(', ')).join(', ');
+		text += '\n\n(L. click to run tests with current settings)';
+		text += '\n(Shift + L. click to run tests and create CSV report)';
 	} else if (y >= h / 2) {
 		if (x >= w * 3 / 2) { text += 'Reset Settings'; }
 		else { text = 'Test Settings'; }
