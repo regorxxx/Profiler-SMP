@@ -1,7 +1,7 @@
 ﻿'use strict';
-//28/05/25
+//01/06/25
 
-/* exported testData, copyData, shuffleData */
+/* exported testData, copyData, shuffleData, initData */
 
 Array.prototype.shuffle = function () { // NOSONAR
 	let last = this.length, n;
@@ -12,8 +12,17 @@ Array.prototype.shuffle = function () { // NOSONAR
 	return this;
 };
 
-const libItems = fb.GetLibraryItems();
-const libItemsArr = fb.GetLibraryItems().Convert();
+let libItems = fb.Version.startsWith('2')
+	? null
+	: fb.GetLibraryItems();
+let libItemsArr = libItems
+	? libItems.Convert()
+	: null;
+
+function initData() {
+	if (!libItems) { libItems = fb.GetLibraryItems(); }
+	if (!libItemsArr) { libItemsArr = libItems.Convert(); }
+}
 
 const intArray = (len) => {
 	let i = len;

@@ -1,11 +1,11 @@
 ﻿'use strict';
-//28/05/25
+//01/06/25
 
 /* exported smpProfiler, skipProfiles, setProfilesPath */
 
 var module = { exports: {} }; // NOSONAR
 include('smp_profiler_data.js');
-/* global testData:readable, copyData:readable, shuffleData:readable */
+/* global testData:readable, copyData:readable, shuffleData:readable, initData:readable */
 /* global settings:readable */
 include('..\\..\\helpers-external\\easy-table-1.2.0\\table.js'); const Table = module.exports;
 
@@ -173,8 +173,8 @@ function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null,
 	this.runFunction = async (profile, func, data) => {
 		const type = func.testDataType || profile.testDataType;
 		const d = profile.shuffleData
-			? shuffleData(data || testData(type, this.magnitude, void(0), void(0), parent ? parent.path : fb.ProfilePath), type)
-			: data || testData(type, this.magnitude, void(0), void(0), parent ? parent.path : fb.ProfilePath);
+			? shuffleData(data || testData(type, this.magnitude, void (0), void (0), parent ? parent.path : fb.ProfilePath), type)
+			: data || testData(type, this.magnitude, void (0), void (0), parent ? parent.path : fb.ProfilePath);
 
 		const result = {
 			time: {
@@ -293,14 +293,13 @@ const smpProfiler = {
 		const currSettingsStr = JSON.stringify(currSettings, null, '\t').replace(/"inherited": (.*),/g, '// Inherited $1 from default settings');
 		const message = 'Total tests: ' + currSettings.length +
 			'\n\nProfiles: ' + currSettings.map((o) => o.profiles).flat(Infinity).join(', ') +
-			'\n\nFunctions: ' + this.profiles.filter((p) => profiles.has(p.name))
-				.map((p) => p.functions.map((f) => f.name))
-				.flat(Infinity).join(', ') +
+			'\n\nFunctions: ' + this.profiles.filter((p) => profiles.has(p.name)).map((p) => p.functions.map((f) => f.name)).flat(Infinity).join(', ') +
 			'\n\nOptions:\n' + currSettingsStr;
 		if (bPopup) { fb.ShowPopupMessage(message, 'Tests list'); }
 		return message;
 	},
 	run: function run(opts) {
+		initData();
 		this.tests = [];
 		// Check if there is a recommended setup
 		let defaultProfileOptions = {};
