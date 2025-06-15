@@ -1,5 +1,5 @@
 ﻿'use strict';
-//30/05/25
+//01/06/25
 /* global module:readable */
 {
 	const getTFHandleListArray = (d, tags) => {
@@ -142,7 +142,7 @@
 		getTFGenres,
 		getTFRating,
 		getTFArtist,
-		getTFFingerprint,
+		// getTFFingerprint,
 		getTFMood,
 	];
 

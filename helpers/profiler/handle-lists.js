@@ -3,7 +3,7 @@
 /* global module:readable */
 {
 	const sort = {
-		name: 'sortByPath',
+		name: 'sort',
 		description: 'Sorts a handle list.',
 		keywords: [
 			'handleList',
@@ -59,7 +59,7 @@
 	};
 
 	const getLibraryPaths = {
-		name: 'sortByRelativePath',
+		name: 'getLibraryPaths',
 		description: 'Retrieves handle list relative paths.',
 		keywords: [
 			'handleList',
@@ -142,8 +142,8 @@
 	module.exports = {
 		name: 'handlelist',
 		description: {
-			long: 'Tags retrieval: Getting tag values for different-sized tags.',
-			short: 'Tags retrieval TF tags.'
+			long: 'Handlelists: Multiple built-in operations.',
+			short: 'handlelists operations.'
 		},
 		keywords: [...new Set(
 			functions.map((fn) => fn.keywords)
