@@ -133,7 +133,7 @@ include('..\\..\\helpers-external\\bitmasksorterjs\\bitmasksorterjs.js'); const 
 			short: 'Array sorting variations.'
 		},
 		keywords: [...new Set(
-			functions.map((fn) => fn.keywords)
+			functions.map((fn) => fn.keywords || [])
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
 		)].sort((a,b) => a.localeCompare(b)),
 		functions,
