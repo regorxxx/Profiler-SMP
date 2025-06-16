@@ -63,10 +63,62 @@
 		copyData: true
 	};
 
+	const collator = new Intl.Collator(void(0), {
+		sensitivity: 'base',
+		numeric: true
+	});
+
+	const specialChars = /[\u0027\u002C\u002D\u00AD\u058A\u2010\u2011\u2012\u2013\u2014\uFE58]/gi;
+
+	const jsCollatorSortByPath = {
+		name: 'jsCollatorSortByPath',
+		description: 'Sorts a handle list by path using JS method Intl.Collator.',
+		keywords: [
+			'handleList',
+			'library',
+			'path',
+			'method'
+		].sort((a, b) => a.localeCompare(b)),
+		codeSample: 'See file',
+		f: (d) => {
+			const paths = d.GetLibraryRelativePaths();
+			const arr = d.Convert();
+			arr.forEach((handle, i) => handle.relPath = paths[i]);
+			arr.sort((a, b) => collator.compare(a.relPath, b.relPath));
+			return new FbMetadbHandleList(arr);
+		},
+		testDataType: 'libraryCached',
+		copyData: true
+	};
+
+
+	const jsFoobarSortByPath = {
+		name: 'jsFoobarSortByPath',
+		description: 'Sorts a handle list by path using JS method Intl.Collator to mimic foobar2000 sorting.',
+		keywords: [
+			'handleList',
+			'library',
+			'path',
+			'method'
+		].sort((a, b) => a.localeCompare(b)),
+		codeSample: 'See file',
+		f: (d) => {
+			const paths = d.GetLibraryRelativePaths();
+			const arr = d.Convert();
+			arr.forEach((handle, i) => handle.relPath = paths[i].replace(specialChars, ''));
+			arr.sort((a, b) => collator.compare(a.relPath, b.relPath));
+			return new FbMetadbHandleList(arr);
+		},
+		testDataType: 'libraryCached',
+		copyData: true
+	};
+
 	const functions = [
 		OrderByPath,
 		jsLocaleSortByPath,
-		jsCodePointSortByPath
+		jsCodePointSortByPath,
+		jsCollatorSortByPath,
+		jsFoobarSortByPath
 	];
 
 	module.exports = {
@@ -76,7 +128,7 @@
 			short: 'handlelists operations comparison.'
 		},
 		keywords: [...new Set(
-			functions.map((fn) => fn.keywords)
+			functions.map((fn) => fn.keywords || [])
 				.reduce((keywords, fnKeywords) => [...keywords, ...fnKeywords], [])
 		)].sort((a, b) => a.localeCompare(b)),
 		functions,
