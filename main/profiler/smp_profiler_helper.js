@@ -1,5 +1,5 @@
 ﻿'use strict';
-//16/06/25
+//06/08/25
 
 /* exported smpProfiler, skipProfiles, setProfilesPath */
 
@@ -102,7 +102,7 @@ function compareKeys(a, b) {
 // Profiler
 const profiler = async (options) => {
 	const profile = async (fn, data, toBe = void (0)) => {
-		let time = 0, heap = 0, now = 0, bSucess = true, temp, out = [];
+		let time = 0, heap = 0, now = 0, bSuccess = true, temp, out = [];
 		await new Promise((resolve) => {
 			if (typeof toBe !== 'undefined') {
 				setTimeout(async () => {
@@ -113,9 +113,9 @@ const profiler = async (options) => {
 						time = Date.now() - now;
 						heap = window.JsMemoryStats.MemoryUsage - heapUsedStart;
 						out.push(temp);
-						bSucess = bSucess && (typeof toBe === 'function' ? toBe(temp, data) : toBe === temp);
+						bSuccess = bSuccess && (typeof toBe === 'function' ? toBe(temp, data) : toBe === temp);
 					} catch (e) { // eslint-disable-line no-unused-vars
-						bSucess = false;
+						bSuccess = false;
 						out.push(e.message);
 					}
 					resolve();
@@ -134,12 +134,12 @@ const profiler = async (options) => {
 		return {
 			time,
 			heap,
-			bSucess,
+			bSuccess,
 			out
 		};
 	};
 	const result = await profile(options.fn, options.data, options.toBe);
-	return (options.memory ? result : { time: result.time, bSucess: result.bSucess, output: result.out });
+	return (options.memory ? result : { time: result.time, bSuccess: result.bSuccess, output: result.out });
 };
 
 function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null, bRepaint = false }) {
@@ -217,7 +217,7 @@ function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null,
 
 		const bHasAssert = Object.hasOwn(func, 'toBe');
 		if (bHasAssert) {
-			result.bSucess = true;
+			result.bSuccess = true;
 		}
 
 		const bCopyData = profile.copyData;
@@ -247,8 +247,8 @@ function ProfileRunner({ profiles, iterations, magnitude, memory, parent = null,
 			if (duration > result.time.maximum) {
 				result.time.maximum = duration;
 			}
-			if (bHasAssert && !profile.bSucess) {
-				result.bSucess = false;
+			if (bHasAssert && !profile.bSuccess) {
+				result.bSuccess = false;
 				fb.ShowPopupMessage(
 					'Name:\t\t' + func.name +
 					'\nDescription:\t' + func.description +
@@ -384,7 +384,7 @@ const smpProfiler = {
 	},
 	reportTest: function reportTest(test = this.tests.slice(-1)[0], type = 'json') { // Single test report
 		const bMemory = test.options.memory;
-		const bHasAssert = test.results.some((result) => result.testResults.some((val) => Object.hasOwn(val, 'bSucess')));
+		const bHasAssert = test.results.some((result) => result.testResults.some((val) => Object.hasOwn(val, 'bSuccess')));
 		return test.results.map((result) => {
 			const profName = result.profile.name;
 			const data = result.testResults;
@@ -399,7 +399,7 @@ const smpProfiler = {
 					t.cell('Total (ms)', val.time.total, Table.number(2));
 					if (bMemory) { t.cell('Memory (MB)', val.memory.maximum / 1000, Table.number(2)); }
 					if (bMemory) { t.cell('Memory (MB)', val.memory.maximum / 1000, Table.number(2)); }
-					if (bHasAssert) { t.cell('Passed', val.bSucess); }
+					if (bHasAssert) { t.cell('Passed', val.bSuccess); }
 					t.newRow();
 				});
 				const summaryData = [
@@ -422,7 +422,7 @@ const smpProfiler = {
 				}
 				if (bHasAssert) {
 					summaryData.push(
-						{ Name: 'All passed', Value: sortTime.every((val) => val.bSucess) }
+						{ Name: 'All passed', Value: sortTime.every((val) => val.bSuccess) }
 					);
 				}
 				const tables = [

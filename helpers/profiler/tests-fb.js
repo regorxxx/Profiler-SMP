@@ -1,5 +1,5 @@
 ﻿'use strict';
-//16/06/25
+//04/09/25
 /* global module:readable */
 {
 	const toType = (a) => {
@@ -814,8 +814,7 @@
 	const coverage = (parent, tests) => {
 		const keys = new Set(Object.keys(parent));
 		const covered = new Set(tests.map((f) => f.name));
-		console.log('tests:fb missing coverage for:\n\t ', [...keys.difference(covered)].join(', '));
-		return (1 - keys.difference(covered).size / keys.size) * 100;
+		return (1 - keys.difference(covered).size / (keys.size || 1)) * 100;
 	};
 
 	module.exports = {
